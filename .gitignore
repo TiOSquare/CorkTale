@@ -121,10 +121,10 @@ iOSInjectionProject/
 ### SwiftPackageManager ###
 Packages
 xcuserdata
-*.xcodeproj
-
 
 ### Xcode ###
+*.xcodeproj
+*.xcworkspace
 
 ## Xcode 8 and earlier
 
@@ -138,3 +138,10 @@ xcuserdata
 **/xcshareddata/WorkspaceSettings.xcsettings
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,xcode,swiftpackagemanager,swift
+
+### Tuist derived files ###
+graph.dot
+Derived/
+
+### Tuist managed dependencies ###
+Tuist/.build
