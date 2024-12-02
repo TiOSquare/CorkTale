@@ -18,7 +18,7 @@ let project = Project(
             ),
             sources: ["CorkTale/Sources/**"],
             resources: ["CorkTale/Resources/**"],
-            dependencies: []
+            dependencies: [.external(name: "Moya")]
         ),
         .target(
             name: "CorkTaleTests",
