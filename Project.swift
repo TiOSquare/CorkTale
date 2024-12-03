@@ -2,6 +2,8 @@ import ProjectDescription
 
 let project = Project(
     name: "CorkTale",
+    packages: [
+    ],
     targets: [
         .target(
             name: "CorkTale",
@@ -18,7 +20,10 @@ let project = Project(
             ),
             sources: ["CorkTale/Sources/**"],
             resources: ["CorkTale/Resources/**"],
-            dependencies: [.external(name: "Moya")]
+            dependencies: [
+                .external(name: "Moya"),
+                .external(name: "ComposableArchitecture"),
+            ]
         ),
         .target(
             name: "CorkTaleTests",

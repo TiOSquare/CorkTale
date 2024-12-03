@@ -8,7 +8,10 @@ import PackageDescription
         // Customize the product types for specific package product
         // Default is .staticFramework
         // productTypes: ["Alamofire": .framework,]
-        productTypes: ["Moya": .framework,]
+        productTypes: [
+            "Moya": .framework,
+            "ComposableArchitecture": .framework,
+        ]
     )
 #endif
 
@@ -18,6 +21,7 @@ let package = Package(
         // Add your own dependencies here:
         // .package(url: "https://github.com/Alamofire/Alamofire", from: "5.0.0"),
         // You can read more about dependencies here: https://docs.tuist.io/documentation/tuist/dependencies
-        .package(url: "https://github.com/Moya/Moya", from: "15.0.3")
+        .package(url: "https://github.com/Moya/Moya", from: "15.0.3"),
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.16.1")
     ]
 )
