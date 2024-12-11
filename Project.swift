@@ -65,7 +65,7 @@ enum ModuleType: String, CaseIterable {
     
     var hasResources: Bool {
         switch self {
-        case .app:
+        case .app, .shared:
             return true
             
         default:
@@ -112,7 +112,8 @@ enum ModuleType: String, CaseIterable {
         case .presentation:
             return [
                 .external(name: "ComposableArchitecture"),
-                .target(name: ModuleType.domain.name)
+                .target(name: ModuleType.domain.name),
+                .target(name: ModuleType.shared.name)
             ]
             
         case .domain:
