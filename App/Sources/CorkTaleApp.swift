@@ -4,7 +4,10 @@ import SwiftUI
 struct CorkTaleApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(store: .init(initialState: AppFeature.State(), reducer: {
+                AppFeature()
+            }))
         }
     }
 }
+ 
