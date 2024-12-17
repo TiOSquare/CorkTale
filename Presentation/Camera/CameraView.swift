@@ -18,26 +18,68 @@ public struct CameraView: View {
         self.store = store
     }
     
-    // MARK: - UI Components
+    // MARK: - CameraView Body
     
-    private var ocrLabel: Text {
-        Text(store.ocrText)
+    public var body: some View {
+        WithPerceptionTracking {
+            
+            ZStack {
+                Preview(frame: store.frame)
+                
+                VStack {
+                    OCRLabel(text: store.ocrText)
+                    Spacer()
+                    OCRButton(action: {
+                        store.send(.ocrButtonDidTap)
+                    })
+                    .padding()
+                }
+            }
+            .onAppear {
+                store.send(.viewDidApear)
+            }
+            .onDisappear {
+                store.send(.viewDidDisappear)
+            }
+            
+        }
     }
     
-    private var ocrButton: some View {
-        Button(action: {
-            store.send(.ocrButtonDidTap)
-            
-        }, label: {
-            Text("get text")
-                .tint(.red)
-        })
+}
+    
+// MARK: - UI Components
+
+extension CameraView {
+    
+    private struct OCRLabel: View {
+        
+        var text: String = ""
+        
+        var body: some View {
+            Text(text)
+                .font(.largeTitle)
+                .padding()
+        }
     }
     
-    private var frame: some View {
-            
+    private struct OCRButton: View {
+        let action: () -> Void
+        
+        var body: some View {
+            Button(action: action, label: {
+                Text("get text")
+                    .tint(.red)
+            })
+        }
+    }
+    
+    private struct Preview: View {
+        
+        var frame: CGImage?
+        
+        var body: some View {
             GeometryReader { geometry in
-                if let image = store.frame {
+                if let image = self.frame {
                     Image(decorative: image, scale: 1)
                         .resizable()
                         .scaledToFit()
@@ -49,33 +91,6 @@ public struct CameraView: View {
                                height: geometry.size.height)
                 }
             }
-            
-    }
-    
-    // MARK: - View Body
-    
-    public var body: some View {
-        WithPerceptionTracking {
-            
-            ZStack {
-                frame
-                
-                VStack {
-                    ocrLabel
-                    
-                    Spacer()
-                    
-                    ocrButton
-                        .padding()
-                }
-            }
-            .onAppear {
-                store.send(.viewDidApear)
-            }
-            .onDisappear {
-                store.send(.viewDidDisappear)
-            }
-            
         }
     }
     
