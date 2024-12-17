@@ -38,6 +38,7 @@ public class CameraFeature: Reducer {
 
         switch action {
         case .ocrButtonDidTap:
+            print("OCRButton did tap")
             return detectText(from: state.frame)
             
         case .viewDidApear:
@@ -74,11 +75,6 @@ public class CameraFeature: Reducer {
                 }
             }
         }
-    }
-    
-    private func detectText(image: CGImage?) -> String {
-        guard let image else { return "" }
-        return visionManager.recognizeText(cgImage: image)
     }
     
     private func startPreveiwStream() -> Effect<Action> {

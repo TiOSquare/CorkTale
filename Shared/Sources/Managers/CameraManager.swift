@@ -21,7 +21,6 @@ public class CameraManager: NSObject {
     public lazy var previewStream: AsyncStream<CGImage> = {
         AsyncStream { [weak self] continuation in
             self?.addToPreviewStream = { cgImage in
-                print("yield")
                 continuation.yield(cgImage)
             }
         }
