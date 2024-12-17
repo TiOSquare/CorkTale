@@ -11,16 +11,28 @@ import VisionKit
 
 public class VisionManager: NSObject {
     
-    public func recognizeText(cgImage: CGImage) -> String {
-        var result = ""
+    public func performTextRecognition(cgImage: CGImage?, completion: @escaping (Result<String, Error>) -> Void) {
+        guard let cgImage else {
+            completion(.success(""))
+            return
+        }
         let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-        let request = VNRecognizeTextRequest { [weak self] request, error in
-            guard let observations = request.results as? [VNRecognizedTextObservation],
-                  error == nil else { return }
+        let request = VNRecognizeTextRequest { request, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
             
-            let text = observations.compactMap({ $0.topCandidates(1).first?.string }).joined(separator: "\n")
-            result = text
-            print("Recognizing text... \(text)")
+            guard let observations = request.results as? [VNRecognizedTextObservation] else {
+                completion(.success(""))
+                return
+            }
+            
+            let recognizedText = observations
+                .compactMap { $0.topCandidates(1).first?.string }
+                .joined(separator: "\n")
+            
+            completion(.success(recognizedText))
         }
         
         let revision = VNRecognizeTextRequestRevision3
@@ -32,9 +44,8 @@ public class VisionManager: NSObject {
         do {
             try handler.perform([request])
         } catch {
-            print("Error: \(error)")
+            completion(.failure(error))
         }
-        return result
     }
     
 }
