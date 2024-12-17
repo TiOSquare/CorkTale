@@ -15,7 +15,6 @@ public class CameraFeature: Reducer {
     
     private let cameraManager = CameraManager()
     private let visionManager = VisionManager()
-    private var previewStreamTask: Task<Void, Never>?
     
     public init() { }
     
@@ -32,31 +31,49 @@ public class CameraFeature: Reducer {
         case viewDidApear
         case viewDidDisappear
         case updatedFrame(CGImage)
+        case updatedOcrLabel(String)
     }
     
     public func reduce(into state: inout State, action: Action) -> Effect<Action> {
 
         switch action {
         case .ocrButtonDidTap:
-            print("ocrButton did tap")
-            let currentFrame = state.frame
-            state.ocrText = self.detectText(image: currentFrame)
-            return .none
+            return detectText(from: state.frame)
             
         case .viewDidApear:
             print("view did apear")
-            return initializeFeature()
+            return startPreveiwStream()
             
         case .viewDidDisappear:
             print("view did disappear")
-            return releaseFeature()
+            return stopPreviewStream()
             
         case .updatedFrame(let image):
             state.frame = image
             return .none
             
+        case .updatedOcrLabel(let text):
+            state.ocrText = text
+            return .none
         }
+        
 
+    }
+    
+    private func detectText(from cgImage: CGImage?) -> Effect<Action> {
+        return .run { send in
+            self.visionManager.performTextRecognition(cgImage: cgImage) { result in
+                Task { @MainActor in
+                    switch result {
+                    case .success(let text):
+                        send(.updatedOcrLabel(text))
+                    case .failure:
+                        print("실패라 빈 텍스트")
+                        send(.updatedOcrLabel(""))
+                    }
+                }
+            }
+        }
     }
     
     private func detectText(image: CGImage?) -> String {
@@ -64,23 +81,17 @@ public class CameraFeature: Reducer {
         return visionManager.recognizeText(cgImage: image)
     }
     
-    private func initializeFeature() -> Effect<Action> {
+    private func startPreveiwStream() -> Effect<Action> {
         return .run { send in
-            self.previewStreamTask = Task {
-                for await image in self.cameraManager.previewStream {
-                    Task { @MainActor in
-                        send(.updatedFrame(image))
-                    }
-                }
+            let stream = self.cameraManager.previewStream
+            for await image in stream {
+                await send(.updatedFrame(image))
             }
         }
+        .cancellable(id: "previewStream", cancelInFlight: true)
     }
     
-    private func releaseFeature() -> Effect<Action> {
-        if self.previewStreamTask != nil {
-            self.previewStreamTask?.cancel()
-        }
-        
-        return .none
+    private func stopPreviewStream() -> Effect<Action> {
+        return .cancel(id: "PreviewStream")
     }
 }
