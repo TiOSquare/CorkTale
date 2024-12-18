@@ -1,0 +1,123 @@
+name: Move related issue to "In Progress"
+
+on:
+  create:
+    branches:
+      - '**'
+
+jobs:
+  move_issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Move Issue to "In Progress"
+        run: |
+          # 브랜치 이름에서 이슈 번호 찾기
+          branch_name="${GITHUB_REF#refs/heads/}"
+          issue_number=$(echo "$branch_name" | grep -oP '^\d+(?=-)')
+
+          if [ -z "$issue_number" ]; then
+            echo "No issue number found in branch name: $branch_name. Skipping."
+            exit 0
+          fi
+
+          # Organization의 Repository에서 프로젝트 ID와 필드, 옵션 정보 한 번에 가져오기
+          query_result=$(gh api graphql -F org=$ORG -F repoName=$REPO -H "Authorization: Bearer $GH_TOKEN" -f query='
+            query($org: String!, $repoName: String!) {
+              organization(login: $org) {
+                repository(name: $repoName) {
+                  projectsV2(first: 1) {
+                    nodes {
+                      id
+                      fields(first: 10) {
+                        nodes {
+                          ... on ProjectV2SingleSelectField {
+                            id
+                            name
+                            options {
+                              id
+                              name
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ')
+
+          # 프로젝트 ID 추출
+          project_id=$(echo "$query_result" | jq -r '.data.organization.repository.projectsV2.nodes[0].id')
+          if [ -z "$project_id" ]; then
+            echo "Project not found for organization $ORG and repository $REPO."
+            exit 1
+          fi
+          echo "Project ID: $project_id"
+
+          # Status 필드 ID 및 "In Progress" 옵션 ID 추출
+          status_field=$(echo "$query_result" | jq -r '.data.organization.repository.projectsV2.nodes[0].fields.nodes[] | select(.name == "Status")')
+          status_field_id=$(echo "$status_field" | jq -r '.id')
+          in_progress_option_id=$(echo "$status_field" | jq -r '.options[] | select(.name == "In Progress").id')
+
+          if [ -z "$status_field_id" ] || [ -z "$in_progress_option_id" ]; then
+            echo "Status field or 'In Progress' option not found in project."
+            exit 1
+          fi
+          echo "Status Field ID: $status_field_id"
+          echo "In Progress Option ID: $in_progress_option_id"
+
+          # 이슈 번호와 ID가 동일한 프로젝트 티켓 가져오기
+          item_id=$(gh api graphql -F project_id=$project_id -H "Authorization: Bearer $GH_TOKEN" -f query='
+            query($project_id: ID!) {
+              node(id: $project_id) {
+                ... on ProjectV2 {
+                  items(first: 100) {
+                    nodes {
+                      id
+                      content {
+                        ... on Issue {
+                          number
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ' --jq '.data.node.items.nodes[] | select(.content.number == '"$issue_number"') | .id')
+
+          if [ -z "$item_id" ]; then
+            echo "No project item found for issue #$issue_number."
+            exit 1
+          fi
+          echo "Item ID: $item_id"
+
+          # 항목 상태 업데이트
+          update_result=$(gh api graphql -F projectId=$project_id -F itemId=$item_id -F fieldId=$status_field_id -F value=$in_progress_option_id -H "Authorization: Bearer $GH_TOKEN" -f query='
+            mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
+              updateProjectV2ItemFieldValue(
+                input: {
+                  projectId: $projectId
+                  itemId: $itemId
+                  fieldId: $fieldId
+                  value: { singleSelectOptionId: $value }
+                }
+              ) {
+                projectV2Item {
+                  id
+                }
+              }
+            }
+          ')
+
+          if [ -z "$update_result" ]; then
+            echo "Failed to update the project item."
+            exit 1
+          fi
+
+          echo "Project item for issue #$issue_number moved to 'In Progress'."
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN }}
+          ORG: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
