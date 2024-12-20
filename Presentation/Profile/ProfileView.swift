@@ -6,6 +6,7 @@
 //
 import SwiftUI
 import ComposableArchitecture
+import Domain
 
 public struct ProfileView: View {
     
@@ -16,6 +17,29 @@ public struct ProfileView: View {
     }
     
     public var body: some View {
-        Text("Profile")
-      }
+        WithViewStore(self.store, observe: { $0 }) { viewStore in
+            NavigationView {
+                VStack {
+                    ProfileHeaderView(store: .init(initialState: ProfileHeaderFeature.State(), reducer: {
+                        ProfileHeaderFeature()
+                    }))
+                        .padding(.top, 30)
+                    
+//                    if let emblems = viewStore.profile?.emblem {
+//                        ProfileEmblemView(emblems: emblems)
+//                    } else {
+                        Text("No emblems available")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+//                    }
+                }
+            }
+        }
+    }
 }
+
+
+
+
+
+
