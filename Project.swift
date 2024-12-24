@@ -88,7 +88,19 @@ enum ModuleType: String, CaseIterable {
     var infoPlist: InfoPlist {
         switch self {
         case .app: return .extendingDefault(with: [
-            "NSCameraUsageDescription": "This app requires access to the camera to take photos."
+            "NSCameraUsageDescription": "This app requires access to the camera to take photos.",
+            "UIApplicationSceneManifest": [
+                "UIApplicationSupportsMultipleScenes": false,
+                "UISceneConfigurations": [
+                    "UIWindowSceneSessionRoleApplication": [
+                        [
+                            "UISceneConfigurationName": "Default Configuration",
+                            "UISceneDelegateClassName": "$(PRODUCT_MODULE_NAME).SceneDelegate"
+                        ]
+                    ]
+                ]
+            ],
+            "UILaunchStoryboardName": "LaunchScreen"
         ])
         default:
             return .default
