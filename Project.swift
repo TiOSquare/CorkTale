@@ -137,7 +137,7 @@ enum ModuleType: String, CaseIterable {
             
         case .data:
             return [
-                .external(name: "Moya"),
+                .external(name: "CombineMoya"),
                 .target(name: ModuleType.domain.name),
                 .target(name: ModuleType.shared.name)
             ]
