@@ -6,6 +6,13 @@ let project = Project(
     name: "CorkTale",
     packages: [
     ],
+    settings: .settings(
+        configurations: [
+            .debug(name: "Debug", xcconfig: "Configs/Debug.xcconfig"),
+            .release(name: "Release", xcconfig: "Configs/Release.xcconfig")
+        ],
+        defaultSettings: .essential
+    ),
     targets: targets
 )
 
@@ -100,8 +107,10 @@ enum ModuleType: String, CaseIterable {
                     ]
                 ]
             ],
-            "UILaunchStoryboardName": "LaunchScreen"
+            "UILaunchStoryboardName": "LaunchScreen",
+            "BASE_URL": "$(BASE_URL)"
         ])
+            
         default:
             return .default
         }
