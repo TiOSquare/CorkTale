@@ -16,6 +16,7 @@ public class CameraFeature: Reducer {
     private let cameraManager = CameraManager()
     private let visionManager = VisionManager()
     private let previewStreamId: String = "previewStream"
+    private let logger = Log.make(with: .presentation)
     
     public init() { }
     
@@ -39,15 +40,15 @@ public class CameraFeature: Reducer {
 
         switch action {
         case .ocrButtonDidTap:
-            print("OCRButton did tap")
+            logger.log("OCRButton did tapped")
             return detectText(from: state.frame)
             
         case .viewDidApear:
-            print("view did apear")
+            logger.log("view did Appear")
             return startPreveiwStream()
             
         case .viewDidDisappear:
-            print("view did disappear")
+            logger.log("view did disappear")
             return stopPreviewStream()
             
         case .updatedFrame(let image):
@@ -68,9 +69,10 @@ public class CameraFeature: Reducer {
                 Task { @MainActor in
                     switch result {
                     case .success(let text):
+                        self.logger.log("detectText succeeded")
                         send(.updatedOcrLabel(text))
                     case .failure:
-                        print("실패라 빈 텍스트")
+                        self.logger.log("detectText failed")
                         send(.updatedOcrLabel(""))
                     }
                 }
@@ -79,6 +81,7 @@ public class CameraFeature: Reducer {
     }
     
     private func startPreveiwStream() -> Effect<Action> {
+        logger.log("start preview stream")
         return .run { send in
             let stream = self.cameraManager.previewStream
             for await image in stream {
@@ -89,6 +92,7 @@ public class CameraFeature: Reducer {
     }
     
     private func stopPreviewStream() -> Effect<Action> {
+        logger.log("stop preview stream")
         return .cancel(id: previewStreamId)
     }
 }
