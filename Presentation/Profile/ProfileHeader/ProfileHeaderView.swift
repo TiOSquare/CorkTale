@@ -11,28 +11,24 @@ import Domain
 
 struct ProfileHeaderView: View {
     
-    let store: StoreOf<ProfileHeaderFeature>
-    
-    public init(store: StoreOf<ProfileHeaderFeature>) {
-        self.store = store
-    }
+    let store: StoreOf<ProfileFeature>
     
     var body: some View {
-        WithViewStore(self.store, observe: { $0 }) { viewStore in
+        WithPerceptionTracking {
             VStack {
                 HStack {
                     ZStack {
-                        Image(systemName: viewStore.profileImage)
+                        Image(systemName: store.profileImage)
                             .resizable()
                             .frame(width: 80, height: 80)
                             .clipShape(Circle())
                     }
                     VStack {
-                        Text(viewStore.nickname)
+                        Text(store.nickname)
                             .font(.headline)
-                        Text(viewStore.nationality)
+                        Text(store.nationality)
                             .font(.subheadline)
-                        Text(String(viewStore.level))
+                        Text(String(store.level))
                             .font(.subheadline)
                     }
                 }

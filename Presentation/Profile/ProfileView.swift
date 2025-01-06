@@ -17,27 +17,19 @@ public struct ProfileView: View {
     }
     
     public var body: some View {
-        WithViewStore(self.store, observe: { $0 }) { viewStore in
-            NavigationView {
-                VStack {
-                    ProfileHeaderView(store: .init(initialState: ProfileHeaderFeature.State(), reducer: {
-                        ProfileHeaderFeature()
-                    }))
-                        .padding(.top, 30)
-                    
-//                    if let emblems = viewStore.profile?.emblem {
-//                        ProfileEmblemView(emblems: emblems)
-//                    } else {
-                        Text("No emblems available")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-//                    }
-                }
+        NavigationView {
+            VStack {
+                ProfileHeaderView(store: .init(initialState: ProfileFeature.State(), reducer: {
+                    ProfileFeature()
+                }))
+                .padding(.top, 30)
+                Text("No emblems available")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
             }
         }
     }
 }
-
 
 
 

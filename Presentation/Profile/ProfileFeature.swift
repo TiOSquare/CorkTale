@@ -12,10 +12,14 @@ public struct ProfileFeature: Reducer {
 
     public init() {}
     
+    @ObservableState
     public struct State: Equatable {
-        public var isLoading: Bool = false
-        public var errorMessage: String? = nil
-        public init() {}
+        var isLoading: Bool = false
+        var errorMessage: String? = nil
+        var profileImage: String = ""
+        var nickname: String = ""
+        var nationality: String = ""
+        var level: Int = 0
     }
     
     public enum Action: Equatable {

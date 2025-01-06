@@ -8,8 +8,10 @@
 import ComposableArchitecture
 
 public struct MainFeature: Reducer {
+    
     public init() {}
     
+    @ObservableState
     public struct State: Equatable {
         var selectedTab: Tab = .home
         public init() {}
