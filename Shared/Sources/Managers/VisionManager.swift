@@ -11,14 +11,17 @@ import VisionKit
 
 public class VisionManager: NSObject {
     
+    let logger = Log.make(with: .shared)
+    
     public func performTextRecognition(cgImage: CGImage?, completion: @escaping (Result<String, Error>) -> Void) {
         guard let cgImage else {
             completion(.success(""))
             return
         }
         let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-        let request = VNRecognizeTextRequest { request, error in
+        let request = VNRecognizeTextRequest { [weak self] request, error in
             if let error = error {
+                self?.logger.log(level: .error, "reqeust fail error: \(error)")
                 completion(.failure(error))
                 return
             }
@@ -44,6 +47,7 @@ public class VisionManager: NSObject {
         do {
             try handler.perform([request])
         } catch {
+            logger.log(level: .error, "handler perform error: \(error)")
             completion(.failure(error))
         }
     }

@@ -56,6 +56,7 @@ public class CameraFeature: Reducer {
             return .none
             
         case .updatedOcrLabel(let text):
+            logger.log(level: .debug, "current OCR text: \(text)")
             state.ocrText = text
             return .none
         }
@@ -69,10 +70,10 @@ public class CameraFeature: Reducer {
                 Task { @MainActor in
                     switch result {
                     case .success(let text):
-                        self.logger.log("detectText succeeded")
+                        self.logger.log(level: .notice, "detectText succeeded")
                         send(.updatedOcrLabel(text))
                     case .failure:
-                        self.logger.log("detectText failed")
+                        self.logger.log(level: .error, "detectText failed")
                         send(.updatedOcrLabel(""))
                     }
                 }
