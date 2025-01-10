@@ -15,6 +15,7 @@ public class CameraManager: NSObject {
     private var deviceOutput: AVCaptureVideoDataOutput?
     private let systemPreferredCamera = AVCaptureDevice.default(for: .video)
     private var sessionQueue = DispatchQueue(label: "video.preview.session")
+    private let logger = Log.make(with: .shared)
     
     private var addToPreviewStream: ((CGImage) -> Void)?
     
@@ -51,7 +52,7 @@ public class CameraManager: NSObject {
               let systemPreferredCamera,
               let deviceInput = try? AVCaptureDeviceInput(device: systemPreferredCamera) else {
             
-            print("failed to configure session")
+            logger.log(level: .error, "failed to configure session")
             return
         }
         
@@ -66,12 +67,12 @@ public class CameraManager: NSObject {
             videoOutput.setSampleBufferDelegate(self, queue: self.sessionQueue)
             
             guard self.session.canAddInput(deviceInput) else {
-                print("Unable to add device input to capture session.")
+                self.logger.log(level: .error, "Unable to add device input to capture session.")
                 return
             }
             
             guard self.session.canAddOutput(videoOutput) else {
-                print("Unable to add video output to capture session.")
+                self.logger.log(level: .error, "Unable to add video output to capture session.")
                 return
             }
             
@@ -95,7 +96,7 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
         connection.videoOrientation = .portrait
         
         guard let currentFrame = sampleBuffer.cgImage else {
-            print("Failed to get CGImage from sample buffer")
+            logger.log(level: .error, "Failed to get CGImage from sample buffer")
             return
         }
         
