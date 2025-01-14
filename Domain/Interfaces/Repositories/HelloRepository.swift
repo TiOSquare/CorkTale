@@ -10,12 +10,7 @@
 import Combine
 
 public protocol HelloRepository {
-//public protocol HelloRepository: Sendable {
     func sayHello() async throws -> String
     func sayHello(with id: String) async throws -> String
     func sayHelloUser(id: String, name: String) async throws -> HelloUser
-    
-//    func sayHello() -> AnyPublisher<String, Error>
-//    func sayHello(with id: String) -> AnyPublisher<String, Error>
-//    func sayHelloUser(id: String, name: String) -> AnyPublisher<HelloUser, Error>
 }

@@ -16,9 +16,6 @@ public struct HelloView: View {
     
     private let store: StoreOf<HelloFeature>
     
-//    public init(store: StoreOf<HelloFeature>) {
-//        self.store = self.store
-//    }
     public init(repository: HelloRepository) {
         self.store = Store(initialState: HelloFeature.State()) {
             HelloFeature(helloRepository: repository)
