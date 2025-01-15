@@ -27,6 +27,16 @@ public struct CameraView: View {
                 Preview(frame: store.frame)
                 
                 VStack {
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            store.send(.dismiss)
+                            
+                        }, label: {
+                            Image(systemName: "xmark")
+                        })
+                        .padding()
+                    }
                     OCRLabel(text: store.ocrText)
                     Spacer()
                     OCRButton(action: {

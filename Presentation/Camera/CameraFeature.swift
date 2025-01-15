@@ -13,12 +13,13 @@ import Combine
 
 public class CameraFeature: Reducer {
     
-    private let cameraManager = CameraManager()
+    private var cameraManager: CameraManager?
     private let visionManager = VisionManager()
     private let previewStreamId: String = "previewStream"
     private let logger = Log.make(with: .presentation)
     
-    public init() { }
+    public init() {
+    }
     
     @ObservableState
     public struct State: Equatable {
@@ -34,6 +35,7 @@ public class CameraFeature: Reducer {
         case viewDidDisappear
         case updatedFrame(CGImage)
         case updatedOcrLabel(String)
+        case dismiss
     }
     
     public func reduce(into state: inout State, action: Action) -> Effect<Action> {
@@ -59,6 +61,10 @@ public class CameraFeature: Reducer {
             logger.log(level: .debug, "current OCR text: \(text)")
             state.ocrText = text
             return .none
+            
+        case .dismiss:
+            logger.log("dismiss")
+            return .none
         }
         
 
@@ -83,10 +89,14 @@ public class CameraFeature: Reducer {
     
     private func startPreveiwStream() -> Effect<Action> {
         logger.log("start preview stream")
+        
+        self.cameraManager = .init()
+        
         return .run { send in
-            let stream = self.cameraManager.previewStream
-            for await image in stream {
-                await send(.updatedFrame(image))
+            if let stream = self.cameraManager?.previewStream {
+                for await image in stream {
+                    await send(.updatedFrame(image))
+                }
             }
         }
         .cancellable(id: previewStreamId, cancelInFlight: true)
