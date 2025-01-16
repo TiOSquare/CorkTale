@@ -15,6 +15,7 @@ public class CameraFeature: Reducer {
     
     private let cameraManager = CameraManager()
     private let visionManager = VisionManager()
+    private let previewStreamId: String = "previewStream"
     
     public init() { }
     
@@ -84,10 +85,10 @@ public class CameraFeature: Reducer {
                 await send(.updatedFrame(image))
             }
         }
-        .cancellable(id: "previewStream", cancelInFlight: true)
+        .cancellable(id: previewStreamId, cancelInFlight: true)
     }
     
     private func stopPreviewStream() -> Effect<Action> {
-        return .cancel(id: "PreviewStream")
+        return .cancel(id: previewStreamId)
     }
 }
