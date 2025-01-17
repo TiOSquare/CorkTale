@@ -126,6 +126,9 @@ xcuserdata
 *.xcodeproj
 *.xcworkspace
 
+### Config files
+Configs/*
+
 ## Xcode 8 and earlier
 
 ### Xcode Patch ###

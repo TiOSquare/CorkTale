@@ -9,7 +9,7 @@ import PackageDescription
         // Default is .staticFramework
         // productTypes: ["Alamofire": .framework,]
         productTypes: [
-            "Moya": .framework,
+            "CombineMoya": .framework,
             "ComposableArchitecture": .framework,
         ]
     )
