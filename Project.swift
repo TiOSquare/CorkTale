@@ -66,7 +66,7 @@ enum ModuleType: String, CaseIterable {
     var deploymentTargets: ProjectDescription.DeploymentTargets {
         switch self {
         default:
-            return .iOS("16.0")
+            return .iOS("17.0")
         }
     }
     
@@ -96,6 +96,8 @@ enum ModuleType: String, CaseIterable {
         switch self {
         case .app: return .extendingDefault(with: [
             "NSCameraUsageDescription": "This app requires access to the camera to take photos.",
+            "NSLocationWhenInUseUsageDescription": "This app requires!!",
+//            "Privacy - Location When In Use Usage Description": "This app requires access to location.",
             "UIApplicationSceneManifest": [
                 "UIApplicationSupportsMultipleScenes": false,
                 "UISceneConfigurations": [
