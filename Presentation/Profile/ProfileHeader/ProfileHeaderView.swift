@@ -13,6 +13,12 @@ struct ProfileHeaderView: View {
     
     let store: StoreOf<ProfileFeature>
     
+    public init(repository: ProfileRepository) {
+        self.store = Store(initialState: ProfileFeature.State()) {
+            ProfileFeature(profileRepository: repository)
+        }
+    }
+    
     var body: some View {
         WithPerceptionTracking {
             VStack {
@@ -44,6 +50,9 @@ struct ProfileHeaderView: View {
                         .cornerRadius(8)
                         .padding(.top, 16)
                         .padding(.horizontal, 20)
+                }
+                .onAppear {
+                    self.store.send(.viewWillAppear)
                 }
             }
         }
