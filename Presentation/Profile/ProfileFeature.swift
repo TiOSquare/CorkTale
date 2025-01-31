@@ -34,6 +34,7 @@ public struct ProfileFeature: Reducer {
         var nickname: String = ""
         var nationality: String = ""
         var level: Int = 0
+        var emblem: [String] = []
         
         var errorMessage: String?
         

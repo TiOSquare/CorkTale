@@ -22,10 +22,13 @@ public final class ProfileRepositoryImpl: ProfileRepository {
     }
     
     public func getProfile() async throws -> Profile {
-        let response: RestResponse<ProfileDTO> = try await
-        self.provider.request(ProfileAPI.getAllProfile)
-        
-        return response.data!.toDomain()
+        do {
+            let rawData = try await self.provider.request(ProfileAPI.getAllProfile)
+            let profileDTO = try JSONDecoder().decode(ProfileDTO.self, from: rawData)
+            return profileDTO.toDomain()
+        } catch {
+            throw error
+        }
     }
     
     public func getNickname() async throws -> String {

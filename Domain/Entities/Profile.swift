@@ -8,11 +8,11 @@
 import Foundation
 
 public struct Profile {
-    let nickname: String
-    let profileImage: String
-    let level: Int
-    let nationality: String
-    let emblem: [String]
+    public private(set) var nickname: String
+    public private(set) var profileImage: String
+    public private(set) var level: Int
+    public private(set) var nationality: String
+    public private(set) var emblem: [String]
     
     public init(nickname: String, profileImage: String, level: Int, nationality: String, emblem: [String]) {
         self.nickname = nickname

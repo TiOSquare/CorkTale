@@ -30,11 +30,11 @@ struct ProfileHeaderView: View {
                             .clipShape(Circle())
                     }
                     VStack {
-                        Text(store.nickname)
+                        Text(store.profile?.nickname ?? "")
                             .font(.headline)
-                        Text(store.nationality)
+                        Text(store.profile?.nationality ?? "")
                             .font(.subheadline)
-                        Text(String(store.level))
+                        Text(String(store.profile?.level ?? 0))
                             .font(.subheadline)
                     }
                 }

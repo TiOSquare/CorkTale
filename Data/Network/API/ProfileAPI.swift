@@ -36,22 +36,21 @@ extension ProfileAPI: TargetType {
     var path: String {
         switch self {
         case .createProfile:
-            return "/users"
+            return ""
         case .getAllProfile:
-            return "/users"
+            return ""
         case .getNickname:
-            return "/users/nickname"
+            return "/nickname"
         case .getProfileImage:
-            return "/users/profileImage"
+            return "/profileImage"
         case .getLevel:
-            return "/users/level"
+            return "/level"
         case .getNationality:
-            return "/users/nationality"
+            return "/nationality"
         }
     }
     
     var headers: [String : String]? {
-//        return ["Accept": Constant.Network.reqHeaderAccept]
         return defaultHeaders
     }
     
@@ -90,9 +89,7 @@ extension ProfileAPI: TargetType {
     
     private var defaultHeaders: [String: String] {
         return [
-            "id": "hello",
-            "Content-Type": "application/json",
-            "Accept-Encoding": "gzip"
+            "id": "hello"
         ]
     }
 }

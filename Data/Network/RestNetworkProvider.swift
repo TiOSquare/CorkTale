@@ -49,6 +49,19 @@ extension RestNetworkProvider: NetworkProvider {
             .map(RestResponse<U>.self)
             .async()
     }
+    
+    func request<T: TargetType>(
+            _ target: T
+        ) async throws -> Data {
+            try await self.requestPublisher(MultiTarget(target))
+                .tryMap { response in
+                    guard (200...299).contains(response.statusCode) else {
+                        throw MoyaError.statusCode(response)
+                    }
+                    return response.data
+                }
+                .async()
+        }
 }
 
 fileprivate extension Publisher {
