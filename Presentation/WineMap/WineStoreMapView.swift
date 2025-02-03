@@ -29,16 +29,20 @@ public struct WineStoreMapView: View {
                         .padding(15)
                     
                     VStack {
+                        Image(systemName: "wave.3.up")
                         Spacer()
-                        Image(systemName: "wave.3.down")
                     }
                 }
                 .foregroundStyle(Color.pink)
                 .rotationEffect(Angle(degrees: store.currentHeading))
-                .animation(.easeInOut, value: store.currentHeading)
+                
             })
+            
         })
         .mapControlVisibility(.hidden)
+        .onMapCameraChange({ cameraContext in
+            store.send(.viewCameraHeadingDidChange(cameraContext.camera.heading))
+        })
         .onAppear {
             store.send(.viewDidApear)
         }

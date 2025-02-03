@@ -16,6 +16,9 @@ public class WineStoreMapFeature: Reducer {
     
     private var useCase: LocationUseCase
     
+    private var latestCameraHeading: Double = 0.0
+    private var latestUserHeading: Double = 0.0
+    
     public init(useCase: LocationUseCase) {
         self.useCase = useCase
     }
@@ -34,8 +37,9 @@ public class WineStoreMapFeature: Reducer {
         
         case viewDidApear
         case viewDidDisappear
+        case viewCameraHeadingDidChange(Double)
         case updateCurrentCoordinate(Double, Double)
-        case updateCurrentHeading(Double)
+        case updateCurrentHeading(Double, Double)
     }
     
     public var body: some ReducerOf<WineStoreMapFeature> {
@@ -56,9 +60,13 @@ public class WineStoreMapFeature: Reducer {
                 state.currentLongitude = longitude
                 return .none
                 
-            case .updateCurrentHeading(let currentHeading):
-                state.currentHeading = currentHeading
+            case .updateCurrentHeading(let userHeading, let cameraHeading):
+                state.currentHeading = self.calculateCurrentHeading(userHeading, cameraHeading)
                 return .none
+                
+            case .viewCameraHeadingDidChange(let cameraHeading):
+                self.latestCameraHeading = cameraHeading
+                return .send(.updateCurrentHeading(self.latestUserHeading, cameraHeading))
             }
         }
     }
@@ -76,8 +84,9 @@ public class WineStoreMapFeature: Reducer {
             }),
             .run(operation: { send in
                 let stream = self.useCase.startHeadingStream()
-                for await heading in stream {
-                    await send(.updateCurrentHeading(heading.trueHeading))
+                for await userHeading in stream {
+                    self.latestUserHeading = userHeading.trueHeading
+                    await send(.updateCurrentHeading(userHeading.trueHeading, self.latestCameraHeading))
                 }
             }),
             .none
@@ -91,4 +100,12 @@ public class WineStoreMapFeature: Reducer {
         
         return .none
     }
+}
+
+private extension WineStoreMapFeature {
+    
+    func calculateCurrentHeading(_ userHeading: Double, _ cameraHeading: Double) -> Double {
+        return userHeading - cameraHeading
+    }
+    
 }
