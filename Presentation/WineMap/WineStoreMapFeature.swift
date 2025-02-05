@@ -54,8 +54,12 @@ public class WineStoreMapFeature: Reducer {
                 self.logger.log("view did disappear")
                 return .none
                 
+            case .viewCameraHeadingDidChange(let cameraHeading):
+                self.logger.log("view camera heading did change: \(cameraHeading)")
+                self.latestCameraHeading = cameraHeading
+                return .send(.updateCurrentHeading(self.latestUserHeading, cameraHeading))
+                
             case .updateCurrentCoordinate(let latitude, let longitude):
-                self.logger.log(level: .info, "update current coordinate. latitude: \(latitude), longitude: \(longitude)")
                 state.currentLatitude = latitude
                 state.currentLongitude = longitude
                 return .none
@@ -64,9 +68,6 @@ public class WineStoreMapFeature: Reducer {
                 state.currentHeading = self.calculateCurrentHeading(userHeading, cameraHeading)
                 return .none
                 
-            case .viewCameraHeadingDidChange(let cameraHeading):
-                self.latestCameraHeading = cameraHeading
-                return .send(.updateCurrentHeading(self.latestUserHeading, cameraHeading))
             }
         }
     }
