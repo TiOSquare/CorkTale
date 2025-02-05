@@ -97,14 +97,12 @@ enum ModuleType: String, CaseIterable {
         case .app: return .extendingDefault(with: [
             "NSCameraUsageDescription": "This app requires access to the camera to take photos.",
             "NSLocationWhenInUseUsageDescription": "This app requires!!",
-//            "Privacy - Location When In Use Usage Description": "This app requires access to location.",
             "UIApplicationSceneManifest": [
                 "UIApplicationSupportsMultipleScenes": false,
                 "UISceneConfigurations": [
                     "UIWindowSceneSessionRoleApplication": [
                         [
                             "UISceneConfigurationName": "Default Configuration",
-                            "UISceneDelegateClassName": "$(PRODUCT_MODULE_NAME).SceneDelegate"
                         ]
                     ]
                 ]
