@@ -142,6 +142,7 @@ enum ModuleType: String, CaseIterable {
             
         case .domain:
             return [
+                .target(name: ModuleType.shared.name)
             ]
             
         case .data:
@@ -153,6 +154,7 @@ enum ModuleType: String, CaseIterable {
             
         case .shared:
             return [
+                .external(name: "SwiftSoup")
             ]
             
         case .appTests:
