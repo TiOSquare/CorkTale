@@ -20,32 +20,25 @@ public final class HTMLScraper {
     
     private init() {}
     
-    public func fetchHTML(
-        from urlString: String,
-        completion: @escaping (String?) -> Void
-    ) {
+    public func fetchHTML(from urlString: String) async throws -> String? {
         guard let url = URL(string: urlString) else {
-            completion(nil)
-            return
+            let error = URLError(.badURL)
+            self.logger.log(level: .error, error.localizedDescription)
+            throw error
         }
         
         var request = URLRequest(url: url)
         request.setValue(Constant.userAgent, forHTTPHeaderField: "User-Agent")
         
-        let task = URLSession.shared.dataTask(with: request) { data, _, error in
-            guard let data = data,
-                  let html = String(data: data, encoding: .utf8)
-            else {
-                self.logger.log(
-                    level: .error,
-                    "Error fetching HTML: \(error?.localizedDescription ?? "Unknown")"
-                )
-                completion(nil)
-                return
-            }
-            completion(html)
+        let (data, _) = try await URLSession.shared.data(for: request)
+
+        guard let html = String(data: data, encoding: .utf8) else {
+            let error = URLError(.cannotDecodeRawData)
+            self.logger.log(level: .error, error.localizedDescription)
+            throw error
         }
-        task.resume()
+        
+        return html
     }
     
 }
