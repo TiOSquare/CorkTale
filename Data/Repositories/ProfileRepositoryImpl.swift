@@ -30,37 +30,5 @@ public final class ProfileRepositoryImpl: ProfileRepository {
             throw error
         }
     }
-    
-    public func getNickname() async throws -> String {
-        let response: RestResponse<ProfileDTO> = try await
-        self.provider.request(ProfileAPI.getNickname)
-        guard let data = response.data?.toDomain(type: ProfileDetail.nickname) as? String else { return String() }
-        
-        return data
-    }
-    
-    public func getProfileImage() async throws -> String {
-        let response: RestResponse<ProfileDTO> = try await
-        self.provider.request(ProfileAPI.getProfileImage)
-        guard let data = response.data?.toDomain(type: ProfileDetail.profileImage) as? String else { return String() }
-        
-        return data
-    }
-    
-    public func getLevel() async throws -> Int {
-        let response: RestResponse<ProfileDTO> = try await
-        self.provider.request(ProfileAPI.getLevel)
-        guard let data = response.data?.toDomain(type: ProfileDetail.level) as? Int else { return Int() }
-        
-        return data
-    }
-    
-    public func getNationality() async throws -> String {
-        let response: RestResponse<ProfileDTO> = try await
-        self.provider.request(ProfileAPI.getNationality)
-        guard let data = response.data?.toDomain(type: ProfileDetail.nationality) as? String else { return String() }
-        
-        return data
-    }
 }
 

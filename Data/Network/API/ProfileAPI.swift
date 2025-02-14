@@ -12,10 +12,6 @@ import Shared
 enum ProfileAPI {
     case createProfile(String, String, Int, String, [String])
     case getAllProfile
-    case getNickname
-    case getProfileImage
-    case getLevel
-    case getNationality
 }
 
 extension ProfileAPI: TargetType {
@@ -26,7 +22,7 @@ extension ProfileAPI: TargetType {
     
     var method: Moya.Method {
         switch self {
-        case .getAllProfile, .getNickname, .getProfileImage, .getLevel, .getNationality:
+        case .getAllProfile:
             return .get
         case .createProfile:
             return .post
@@ -39,14 +35,6 @@ extension ProfileAPI: TargetType {
             return ""
         case .getAllProfile:
             return ""
-        case .getNickname:
-            return "/nickname"
-        case .getProfileImage:
-            return "/profileImage"
-        case .getLevel:
-            return "/level"
-        case .getNationality:
-            return "/nationality"
         }
     }
     
@@ -55,32 +43,22 @@ extension ProfileAPI: TargetType {
     }
     
     var task: Task {
-        var params: [String : Any] = [:]
-        
         switch self {
         case .createProfile(let nickname, let profileImage, let level, let nationality, let emblem):
-            params["nickname"] = nickname
-            params["profileImage"] = profileImage
-            params["level"] = level
-            params["nationality"] = nationality
-            params["emblem"] = emblem
-            
+            let dto = ProfileDTO(nickname: nickname,
+                                 profileImage: profileImage,
+                                 level: level,
+                                 nationality: nationality,
+                                 emblem: emblem)
+            if let jsonData = try? JSONEncoder().encode(dto),
+               let jsonObject = try? JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
+                return .requestParameters(parameters: jsonObject, encoding: JSONEncoding.default)
+            } else {
+                return .requestPlain
+            }
         case .getAllProfile:
             return .requestPlain
-        case .getNickname:
-            return .requestPlain
-        case .getProfileImage:
-            return .requestPlain
-        case .getLevel:
-            return .requestPlain
-        case .getNationality:
-            return .requestPlain
         }
-        
-        return .requestParameters(
-            parameters: params,
-            encoding: URLEncoding.default
-        )
     }
     
     var sampleData: Data {
