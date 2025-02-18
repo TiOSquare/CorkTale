@@ -8,6 +8,8 @@
 import Foundation
 import SwiftSoup
 
+import Shared
+
 public final class HTMLScraper {
     
     private enum Constant {
@@ -16,6 +18,7 @@ public final class HTMLScraper {
     
     let logger = Log.make(with: .shared)
     
+    // TODO: shared를 쓰는게 맞는가?
     public static let shared = HTMLScraper()
     
     private init() {}
