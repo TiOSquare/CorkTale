@@ -20,7 +20,7 @@ public final class HTMLScraper {
     
     private init() {}
     
-    public func fetchHTML(from urlString: String) async throws -> String? {
+    public func fetchHTML(from urlString: String) async throws -> String {
         guard let url = URL(string: urlString) else {
             let error = URLError(.badURL)
             self.logger.log(level: .error, error.localizedDescription)

@@ -43,8 +43,12 @@ extension HTMLScraper {
         }
     }
     
-    public func scrapeWines(from html: String) -> [[String : Any]] {
+    public func scrapeWines(searchQuery: String) async throws -> [[String : Any]] {
         do {
+            // 검색할 와인 키워드
+            let searchURL = "\(Constant.baseURL)/search/wines?q=\(searchQuery)"
+            let html = try await self.fetchHTML(from: searchURL)
+            
             let doc: Document = try SwiftSoup.parse(html)
             let cards = try doc.select(Constant.Selectors.wineCard)
             
