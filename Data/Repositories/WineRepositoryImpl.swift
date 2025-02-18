@@ -15,7 +15,7 @@ public final class WineRepositoryImpl: WineRepository {
     
     public func search(name: String) async throws -> [Wine] {
         do {
-            return try await HTMLScraper.shared.scrapeWines(searchQuery: name)
+            return try await HTMLScraper().scrapeWines(searchQuery: name)
                 .compactMap { WineDTO(from: $0) }
                 .map { $0.toDomain() }
         }

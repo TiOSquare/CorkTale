@@ -18,11 +18,6 @@ public final class HTMLScraper {
     
     let logger = Log.make(with: .shared)
     
-    // TODO: shared를 쓰는게 맞는가?
-    public static let shared = HTMLScraper()
-    
-    private init() {}
-    
     public func fetchHTML(from urlString: String) async throws -> String {
         guard let url = URL(string: urlString) else {
             let error = URLError(.badURL)
