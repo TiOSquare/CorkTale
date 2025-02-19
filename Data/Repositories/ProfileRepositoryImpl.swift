@@ -14,7 +14,7 @@ public final class ProfileRepositoryImpl: ProfileRepository {
     
     public init() { }
     
-    public func createProfile(nickName: String, profileImage: String, level: Int, nationality: String, emblem: [String]) async throws -> Domain.Profile {
+    public func createProfile(nickName: String, profileImage: String, level: Int, nationality: String, emblem: [String]) async throws -> Profile {
         let response: RestResponse<ProfileDTO> = try await
         self.provider.request(ProfileAPI.createProfile(nickName, profileImage, level, nationality, emblem))
         
