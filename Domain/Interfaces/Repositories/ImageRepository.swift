@@ -8,6 +8,11 @@
 import Foundation
 
 public protocol ImageRepository {
-    func fetch(forKey: String) async -> Data?
+    func fetch(forKey key: String, type: ImageType) async -> Data?
 }
 
+public enum ImageType {
+    case thumbnail
+    case original
+    case test
+}
