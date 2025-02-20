@@ -17,6 +17,6 @@ public final class WineUseCaseImpl: WineUseCase {
     }
     
     public func search(name: String) async throws -> [Wine] {
-        return try await self.repository.search(name: name)
+        return try await self.repository.scrape(matching: name)
     }
 }

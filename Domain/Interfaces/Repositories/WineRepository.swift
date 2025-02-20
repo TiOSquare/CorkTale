@@ -6,5 +6,5 @@
 //
 
 public protocol WineRepository {
-    func search(name: String) async throws -> [Wine]
+    func scrape(matching name: String) async throws -> [Wine]
 }

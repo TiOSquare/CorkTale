@@ -13,7 +13,7 @@ public final class WineRepositoryImpl: WineRepository {
     
     public init() { }
     
-    public func search(name: String) async throws -> [Wine] {
+    public func scrape(matching name: String) async throws -> [Wine] {
         do {
             return try await HTMLScraper().scrapeWines(searchQuery: name)
                 .compactMap { WineDTO(from: $0) }
