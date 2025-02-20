@@ -15,7 +15,7 @@ enum ProfileDetail {
     case emblem
 }
 
-struct ProfileDTO: Decodable, Encodable {
+struct ProfileDTO: Codable {
     let nickname: String
     let profileImage: String
     let level: Int
