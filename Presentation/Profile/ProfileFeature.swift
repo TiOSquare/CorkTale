@@ -14,10 +14,6 @@ public struct ProfileFeature: Reducer {
     
     private enum CancellableID {
         static let profile = "profile"
-        static let profileImage = "profileImage"
-        static let nickname = "nickname"
-        static let nationality = "nationality"
-        static let level = "level"
     }
     
     private let profileUseCase: ProfileUseCase
