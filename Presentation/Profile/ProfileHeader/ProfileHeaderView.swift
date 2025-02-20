@@ -12,13 +12,7 @@ import Domain
 struct ProfileHeaderView: View {
     
     let store: StoreOf<ProfileFeature>
-    
-    public init(repository: ProfileRepository) {
-        self.store = Store(initialState: ProfileFeature.State()) {
-            ProfileFeature(profileRepository: repository)
-        }
-    }
-    
+
     var body: some View {
         WithPerceptionTracking {
             VStack {

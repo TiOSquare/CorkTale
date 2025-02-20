@@ -20,9 +20,10 @@ public struct ProfileFeature: Reducer {
         static let level = "level"
     }
     
-    private let profileRepository: ProfileRepository
-    public init(profileRepository: ProfileRepository) {
-        self.profileRepository = profileRepository
+    private let profileUseCase: ProfileUseCase
+    
+    public init(useCase: ProfileUseCase) {
+        self.profileUseCase = useCase
     }
     
     @ObservableState
@@ -53,7 +54,7 @@ public struct ProfileFeature: Reducer {
     public func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewWillAppear:
-            return self.reqProfile(repository: self.profileRepository)
+            return self.reqProfile(useCase: self.profileUseCase)
         case .updateProfile(let user):
             state.profile = user
             return .none
@@ -66,10 +67,10 @@ public struct ProfileFeature: Reducer {
         }
     }
     
-    private func reqProfile(repository: ProfileRepository) -> Effect<Action> {
+    private func reqProfile(useCase: ProfileUseCase) -> Effect<Action> {
         return .run { send in
             do {
-                let profile = try await repository.getProfile()
+                let profile = try await useCase.getProfile()
                 await send(.updateProfile(profile))
             } catch {
                 await send(.updatedErrorText(error.localizedDescription))
