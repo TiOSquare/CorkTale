@@ -11,6 +11,7 @@ import PackageDescription
         productTypes: [
             "CombineMoya": .framework,
             "ComposableArchitecture": .framework,
+            "SwiftSoup": .framework,
         ]
     )
 #endif
@@ -22,6 +23,7 @@ let package = Package(
         // .package(url: "https://github.com/Alamofire/Alamofire", from: "5.0.0"),
         // You can read more about dependencies here: https://docs.tuist.io/documentation/tuist/dependencies
         .package(url: "https://github.com/Moya/Moya", from: "15.0.3"),
-        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.16.1")
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.16.1"),
+        .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
     ]
 )
