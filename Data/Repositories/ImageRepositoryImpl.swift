@@ -18,7 +18,6 @@ public final class ImageRepositoryImpl: ImageRepository {
     }
 
     private let memoryCache: MemoryCache = .init()
-    private let diskCache: DiskCache = .init()
     private let logger = Log.make(with: .data)
     
     public init() { }
@@ -72,7 +71,7 @@ public final class ImageRepositoryImpl: ImageRepository {
             if let memoryCachedData = self.memoryCache.fetch(forKey: key) {
                 return memoryCachedData
             }
-            if let diskCachedData = self.diskCache.fetch(forKey: key) {
+            if let diskCachedData = DiskCache.fetch(forKey: key) {
                 self.memoryCache.store(diskCachedData, etag: etag, forKey: key)
                 return diskCachedData
             }
@@ -91,7 +90,7 @@ public final class ImageRepositoryImpl: ImageRepository {
             return memoryCachedData
         }
         
-        if let diskCachedData = self.diskCache.fetch(forKey: key) {
+        if let diskCachedData = DiskCache.fetch(forKey: key) {
             self.logger.log("disk cached image data")
             self.memoryCache.store(diskCachedData, forKey: key)
             return diskCachedData
@@ -115,7 +114,7 @@ public final class ImageRepositoryImpl: ImageRepository {
         if let memoryCachedEtag = self.memoryCache.etag(forKey: key) {
             return memoryCachedEtag
         }
-        if let diskCachedEtag = self.diskCache.etag(forKey: key) {
+        if let diskCachedEtag = DiskCache.etag(forKey: key) {
             return diskCachedEtag
         }
         return nil
@@ -124,7 +123,7 @@ public final class ImageRepositoryImpl: ImageRepository {
     private func storeToCache(_ data: Data, etag: String? = nil, forKey key: String) {
         self.logger.log("cache image data key: \(key), etag: \(String(describing: etag))")
         memoryCache.store(data, etag: etag, forKey: key)
-        diskCache.store(data, etag: etag, forKey: key)
+        DiskCache.store(data, etag: etag, forKey: key)
     }
     
     private func download(from url: URL, etag: String? = nil) async -> DownloadResult {
