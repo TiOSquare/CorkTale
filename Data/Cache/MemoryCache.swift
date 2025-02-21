@@ -7,7 +7,7 @@
 
 import Foundation
 
-class MemoryCache {
+final class MemoryCache {
     
     private class CacheItem {
         let data: Data

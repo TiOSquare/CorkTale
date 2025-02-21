@@ -8,7 +8,7 @@
 import Foundation
 import Shared
 
-class DiskCache {
+final class DiskCache {
     
     private static let fileManager: FileManager = FileManager.default
     private static let cachedDataName: String = "cachedData"
