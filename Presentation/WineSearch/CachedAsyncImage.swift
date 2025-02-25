@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Shared
+
 struct CachedAsyncImage<Content: View, Placeholder: View>: View {
     @StateObject private var viewModel: ImageLoaderViewModel
     private let content: (Image) -> Content
@@ -78,4 +79,3 @@ private final class ImageLoaderViewModel: ObservableObject {
         self.isLoading = isLoading
     }
 }
-
