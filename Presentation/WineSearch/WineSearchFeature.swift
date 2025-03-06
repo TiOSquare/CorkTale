@@ -7,18 +7,22 @@
 
 import Foundation
 import ComposableArchitecture
+import Domain
 import Shared
+import Data // tempo
 
 public class WineSearchFeature: Reducer {
     
     private let logger = Log.make(with: .presentation)
     private let cameraFeature = CameraFeature()
+    private let usecase: WineUseCase = WineUseCaseImpl(repository: WineRepositoryImpl())
     
     public init() { }
     
     @ObservableState
     public struct State: Equatable {
         var searchText: String = ""
+        var searchResult: [Wine] = []
         var isPresentedCameraSheet: Bool = false
         var cameraState = CameraFeature.State()
         
@@ -32,6 +36,7 @@ public class WineSearchFeature: Reducer {
         case viewDidDisappear
         case searchButtonDidTapped
         case cameraButtonDidTapped
+        case updateSearchResult([Wine])
         case binding(BindingAction<State>)
         case cameraAction(CameraFeature.Action)
         
@@ -47,7 +52,7 @@ public class WineSearchFeature: Reducer {
                 
             case .viewDidApear:
                 self.logger.log("view did appear")
-                return Effect<WineSearchFeature.Action>.none
+                return .none
                 
             case .viewDidDisappear:
                 self.logger.log("view did disappear")
@@ -55,11 +60,16 @@ public class WineSearchFeature: Reducer {
                 
             case .searchButtonDidTapped:
                 self.logger.log("search button did tapped")
-                return .none
+                return self.requestSearchWines(with: state.searchText)
                 
             case .cameraButtonDidTapped:
                 self.logger.log("camera button did tapped")
                 state.isPresentedCameraSheet = true
+                return .none
+                
+            case .updateSearchResult(let wineList):
+                state.searchResult = wineList
+                self.logger.log("result: \(state.searchResult)")
                 return .none
                 
             // Binding
@@ -80,7 +90,7 @@ public class WineSearchFeature: Reducer {
             case .cameraAction(.updatedOcrLabel(let text)):
                 self.logger.log("from camera feature: \(text)")
                 state.isPresentedCameraSheet = false
-                return .none
+                return self.requestSearchWines(with: text)
                 
             case .cameraAction(.dismiss):
                 state.isPresentedCameraSheet = false
@@ -90,6 +100,17 @@ public class WineSearchFeature: Reducer {
                 return .none
             }
         }
+    }
+    
+}
+
+private extension WineSearchFeature {
+    func requestSearchWines(with text: String) -> Effect<Action> {
+        
+        return .run(operation: { send in
+            let result = try? await self.usecase.search(name: text)
+            await send(.updateSearchResult(result ?? []))
+        })
     }
     
 }
