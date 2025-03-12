@@ -12,6 +12,7 @@ import Shared
 enum ProfileAPI {
     case createProfile(ProfileDTO)
     case getAllProfile
+    case updateProfile(ProfileEditDTO)
 }
 
 extension ProfileAPI: TargetType {
@@ -26,6 +27,8 @@ extension ProfileAPI: TargetType {
             return .get
         case .createProfile:
             return .post
+        case .updateProfile:
+            return .post
         }
     }
     
@@ -35,6 +38,8 @@ extension ProfileAPI: TargetType {
             return ""
         case .getAllProfile:
             return ""
+        case .updateProfile:
+            return "/edit"
         }
     }
     
@@ -48,6 +53,8 @@ extension ProfileAPI: TargetType {
             return .requestJSONEncodable(dto)
         case .getAllProfile:
             return .requestPlain
+        case .updateProfile(let dto):
+            return .requestJSONEncodable(dto)
         }
     }
     
