@@ -1,14 +1,19 @@
 import SwiftUI
+import ComposableArchitecture
+import Presentation
 
 public struct ContentView: View {
-    public init() {}
 
     public var body: some View {
-        Text("Hello, World!")
-            .padding()
+        MainView(store: .init(initialState: MainFeature.State(), reducer: {
+            MainFeature()
+        }))
     }
 }
 
+enum Tab: Hashable {
+    case home, location, search, profile, music
+}
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
