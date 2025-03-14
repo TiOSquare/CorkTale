@@ -6,9 +6,9 @@
 //
 
 public protocol ProfileUseCase {
-    func createProfile(nickName: String, profileImage: String, level: Int, nationality: String, emblem: [String]) async throws -> Domain.Profile
+    func createProfile(nickName: String, profileImage: String, level: Int, nationality: String, emblem: [String]) async throws -> Profile
     func getProfile() async throws -> Profile
-    func updateProfile(nickName: String, profileImage: String) async throws -> Int
+    func updateProfile(nickName: String, profileImage: String) async throws -> ProfileEdit
 }
 
 public final class ProfileUseCaseImpl: ProfileUseCase {
@@ -25,7 +25,7 @@ public final class ProfileUseCaseImpl: ProfileUseCase {
         return try await self.repository.getProfile()
     }
     
-    public func updateProfile(nickName: String, profileImage: String) async throws -> Int {
+    public func updateProfile(nickName: String, profileImage: String) async throws -> ProfileEdit {
         return try await self.repository.updateProfile(nickName: nickName, profileImage: profileImage)
     }
 }
