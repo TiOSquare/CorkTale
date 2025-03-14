@@ -46,8 +46,8 @@ public enum LogLevel {
 public enum Log {
   /// Logger를 생성합니다.
   /// - Parameter category: 모듈 별로 Log를 구분하기 위한 파라미터
-    public static func make(with category: LogCategory = .app) -> Logger {
-    return Logger(subsystem: .bundleIdentifier, category: category.rawValue)
+    public static func make(with category: LogCategory = .app) -> CTLogger {
+    return CTLogger(subsystem: .bundleIdentifier, category: category)
   }
 }
 
@@ -67,7 +67,13 @@ private extension String {
   static let bundleIdentifier: String = Bundle.main.bundleIdentifier ?? "None"
 }
 
-extension Logger {
+public class CTLogger {
+    
+    private let logger: Logger
+    
+    public init(subsystem: String, category: LogCategory) {
+        logger = Logger(subsystem: subsystem, category: category.rawValue)
+    }
     
     public func log(
         level: LogLevel = .trace,
@@ -80,13 +86,13 @@ extension Logger {
         let message = "[\(sourceFileModuleName(fileID))] [\(level.emoji)] [\(sourceFileName(fileID)) - \(funcName) #\(line)] || \(object)"
 
         switch level {
-        case .trace: trace("\(message)")
-        case .debug: debug("\(message)")
-        case .info: info("\(message)")
-        case .notice: notice("\(message)")
-        case .warning: warning("\(message)")
-        case .error: error("\(message)")
-        case .critical: critical("\(message)")
+        case .trace: logger.trace("\(message)")
+        case .debug: logger.debug("\(message)")
+        case .info: logger.info("\(message)")
+        case .notice: logger.notice("\(message)")
+        case .warning: logger.warning("\(message)")
+        case .error: logger.error("\(message)")
+        case .critical: logger.critical("\(message)")
         }
     }
     
