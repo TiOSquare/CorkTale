@@ -9,15 +9,17 @@ import Foundation
 import ComposableArchitecture
 import Domain
 import Shared
-import Data // tempo
 
 public class WineSearchFeature: Reducer {
     
     private let logger = Log.make(with: .presentation)
-    private let cameraFeature = CameraFeature()
-    private let usecase: WineUseCase = WineUseCaseImpl(repository: WineRepositoryImpl())
+    private let cameraFeature: CameraFeature
+    private let usecase: WineUseCase
     
-    public init() { }
+    public init(cameraFeature: CameraFeature, usecase: WineUseCase) {
+        self.cameraFeature = cameraFeature
+        self.usecase = usecase
+    }
     
     @ObservableState
     public struct State: Equatable {
