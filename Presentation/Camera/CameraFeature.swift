@@ -9,16 +9,16 @@ import ComposableArchitecture
 import CoreImage
 import Foundation
 import Shared
-import Combine
 
 public class CameraFeature: Reducer {
     
     private var cameraManager: CameraManager?
-    private let visionManager = VisionManager()
+    private let visionManager: VisionManager
     private let previewStreamId: String = "previewStream"
     private let logger = Log.make(with: .presentation)
     
-    public init() {
+    public init(visionManger: VisionManager) {
+        self.visionManager = visionManger
     }
     
     @ObservableState

@@ -14,8 +14,8 @@ public struct WineSearchView: View {
     // MARK: - Variables
     @Bindable var store: StoreOf<WineSearchFeature>
 
-    public init(store: StoreOf<WineSearchFeature>) {
-        self.store = store
+    public init(factory: StoreFactory) {
+        self.store = factory.makeWineSearchFeatureStore()
     }
     
     public var body: some View {
