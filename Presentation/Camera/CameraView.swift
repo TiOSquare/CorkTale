@@ -21,37 +21,33 @@ public struct CameraView: View {
     // MARK: - CameraView Body
     
     public var body: some View {
-        WithPerceptionTracking {
+        ZStack {
+            Preview(frame: store.frame)
             
-            ZStack {
-                Preview(frame: store.frame)
-                
-                VStack {
-                    HStack {
-                        Spacer()
-                        Button(action: {
-                            store.send(.dismiss)
-                            
-                        }, label: {
-                            Image(systemName: "xmark")
-                        })
-                        .padding()
-                    }
-                    OCRLabel(text: store.ocrText)
+            VStack {
+                HStack {
                     Spacer()
-                    OCRButton(action: {
-                        store.send(.ocrButtonDidTap)
+                    Button(action: {
+                        store.send(.dismiss)
+                        
+                    }, label: {
+                        Image(systemName: "xmark")
                     })
                     .padding()
                 }
+                OCRLabel(text: store.ocrText)
+                Spacer()
+                OCRButton(action: {
+                    store.send(.ocrButtonDidTap)
+                })
+                .padding()
             }
-            .onAppear {
-                store.send(.viewDidApear)
-            }
-            .onDisappear {
-                store.send(.viewDidDisappear)
-            }
-            
+        }
+        .onAppear {
+            store.send(.viewDidApear)
+        }
+        .onDisappear {
+            store.send(.viewDidDisappear)
         }
     }
     
