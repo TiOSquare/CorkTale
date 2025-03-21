@@ -28,7 +28,7 @@ extension ProfileAPI: TargetType {
         case .createProfile:
             return .post
         case .updateProfile:
-            return .post
+            return .patch
         }
     }
     
