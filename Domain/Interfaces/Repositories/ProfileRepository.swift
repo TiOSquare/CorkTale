@@ -10,7 +10,7 @@
 import Combine
 
 public protocol ProfileRepository {
-    func createProfile(nickName: String, profileImage: String, level: Int, nationality: String, emblem: [String]) async throws -> Profile
+    func createProfile(profile: Profile) async throws -> Profile
     func getProfile() async throws -> Profile
-    func updateProfile(nickName: String, profileImage: String) async throws -> ProfileEdit
+    func updateProfile(profile: ProfileEdit) async throws -> Profile
 }
