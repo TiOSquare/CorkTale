@@ -8,9 +8,9 @@
 import SwiftUI
 import ComposableArchitecture
 import Domain
+import Data
 
 struct ProfileHeaderView: View {
-    
     let store: StoreOf<ProfileFeature>
 
     var body: some View {
@@ -32,9 +32,10 @@ struct ProfileHeaderView: View {
                             .font(.subheadline)
                     }
                 }
-                NavigationLink(destination: ProfileEditView(store: .init(initialState: ProfileEditFeature.State(), reducer: {
-                    ProfileEditFeature()
-                }))) {
+                NavigationLink(
+                    destination: ProfileEditView(store: .init(initialState: ProfileEditFeature.State(),
+                                                          reducer: { ProfileEditFeature(useCase: ProfileUseCaseImpl(repository: ProfileRepositoryImpl())) }))
+                ) {
                     Text("Edit Profile")
                         .font(.headline)
                         .frame(maxWidth: .infinity)

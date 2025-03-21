@@ -45,9 +45,9 @@ public struct ProfileEditFeature: Reducer {
         case loadProfile(Profile)
         case profileImageButtonTapped
         case selectedCamera
+        case changeToBasicProfileImage
         case imagePickerSourceSelected(ImagePickerSource)
         case saveButtonTapped
-        case createButtonTapped //테스트용
         case loadErrorText(String)
         
         case binding(BindingAction<State>)
@@ -69,13 +69,13 @@ public struct ProfileEditFeature: Reducer {
         case .selectedCamera:
             state.isShowingImagePicker = true
             return .none
+        case .changeToBasicProfileImage:
+            return .none
         case .imagePickerSourceSelected(let source):
             state.selectedImagePickerSource = source
             state.isShowingImagePicker = true
             return .none
         case .saveButtonTapped:
-            return .none
-        case .createButtonTapped:
             return .none
         case .loadErrorText(let error):
             state.errorText = error
@@ -107,33 +107,12 @@ extension ProfileEditFeature {
         }
         .cancellable(id: CancellableID.profile, cancelInFlight: true)
     }
-
-    func reqProfileUpdate(state: State, useCase: ProfileUseCase) -> Effect<Action> {
-        return .run { send in
-            do {
-                guard let profile = state.profile else { return }
-                let profileUpdate = try await useCase.createProfile(nickName: profile.nickname,
-                                                                    profileImage: profile.profileImage,
-                                                                    level: profile.level,
-                                                                    nationality: profile.nickname,
-                                                                    emblem: profile.emblem)
-                await send(.loadProfile(profile))
-            } catch {
-                await send(.loadErrorText(error.localizedDescription))
-            }
-        }
-        .cancellable(id: CancellableID.profile, cancelInFlight: true)
-    }
     
     func reqProfilePatch(state: State, useCase: ProfileUseCase) -> Effect<Action> {
         return .run { send in
             do {
-                guard let profile = state.profile else { return }
-                let profileUpdate = try await useCase.createProfile(nickName: profile.nickname,
-                                                                    profileImage: profile.profileImage,
-                                                                    level: 0,
-                                                                    nationality: "🇰🇷",
-                                                                    emblem: [""])
+                let profileState = ProfileEdit(nickname: state.nickname, profileImage: state.profileImage)
+                let profile = try await useCase.updateProfile(profile: profileState)
                 await send(.loadProfile(profile))
             } catch {
                 await send(.loadErrorText(error.localizedDescription))

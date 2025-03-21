@@ -42,26 +42,17 @@ struct ProfileEditView: View {
                 .sheet(isPresented: $store.isShowingImagePicker) {
                     
                 }
-                TextField("Enter nickname", text: $store.nickname)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding(.horizontal,20)
+                HStack {
+                    Text("Nickname")
+                        .padding(.horizontal, 20)
+                    TextField("Enter nickname", text: $store.nickname)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(.horizontal,20)
+                }
                 Button(action: {
                     store.send(.saveButtonTapped)
                 }) {
                     Text("Save")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                        .padding(.top, 16)
-                        .padding(.horizontal, 20)
-                }
-                Button(action: {
-                    
-                }) {
-                    Text("Create(TEST)")
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
