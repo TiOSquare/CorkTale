@@ -32,10 +32,10 @@ public final class ProfileRepositoryImpl: ProfileRepository {
         return response.data!.toDomain()
     }
     
-    public func updateProfile(profile: ProfileEdit) async throws -> ProfileEdit {
+    public func updateProfile(profile: ProfileEdit) async throws -> Profile {
         let profileDTO = ProfileEditDTO(nickname: profile.nickname, profileImage: profile.profileImage)
         
-        let response: RestResponse<ProfileEditDTO> = try await
+        let response: RestResponse<ProfileDTO> = try await
         self.provider.request(ProfileAPI.updateProfile(profileDTO))
         return response.data!.toDomain()
     }
