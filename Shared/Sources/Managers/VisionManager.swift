@@ -53,7 +53,7 @@ public class VisionManager: NSObject {
                     .sorted { $0.boundingBox.height > $1.boundingBox.height }
                     .compactMap { $0.topCandidates(1).first?.string }
                     .prefix(3)
-                    .joined(separator: "+")
+                    .joined(separator: " ")
                 
                 completion(.success(recognizedText))
             }

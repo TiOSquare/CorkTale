@@ -92,6 +92,7 @@ public class WineSearchFeature: Reducer {
             case .cameraAction(.updatedOcrLabel(let text)):
                 self.logger.log("from camera feature: \(text)")
                 state.isPresentedCameraSheet = false
+                state.searchText = text
                 return self.requestSearchWines(with: text)
                 
             case .cameraAction(.dismiss):
