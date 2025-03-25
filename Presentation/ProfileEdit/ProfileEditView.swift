@@ -18,12 +18,18 @@ struct ProfileEditView: View {
                 Button(action: {
                     store.send(.profileImageButtonTapped)
                 }) {
-                    
-                    Image(systemName: store.profile?.profileImage ?? "person.circle")
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 100, height: 100)
-                        .clipShape(Circle())
+                    if let data = Data(base64Encoded: store.profileImage),
+                       let uiImage = UIImage(data: data) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .frame(width: 100, height: 100)
+                            .clipShape(Circle())
+                    } else {
+                        Image(systemName: "person.circle")
+                            .resizable()
+                            .frame(width: 100, height: 100)
+                            .clipShape(Circle())
+                    }
                 }
                 .actionSheet(isPresented: $store.isShowingActionSheet) {
                     ActionSheet(title: Text("프로필사진 변경"), buttons: [
@@ -34,13 +40,25 @@ struct ProfileEditView: View {
                             store.send(.imagePickerSourceSelected(.camera))
                         },
                         .destructive(Text("기본 이미지로 변경")) {
-                            
+                            store.send(.imagePickerSourceSelected(nil))
                         },
-                        .cancel()
+                        .cancel() {
+                            store.send(.profilePhotoChangeCancelled)
+                        }
                     ])
                 }
                 .sheet(isPresented: $store.isShowingImagePicker) {
-                    
+                    if let source = store.selectedImagePickerSource {
+                        ImagePicker(
+                            sourceType: source == .camera ? .camera : .photoLibrary,
+                            onImagePicked: { image in
+                                store.send(.didSelectedPhoto(image))
+                            },
+                            onCancel: {
+                                store.send(.didCancelImagePicking)
+                            }
+                        )
+                    }
                 }
                 HStack {
                     Text("Nickname")

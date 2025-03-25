@@ -8,6 +8,7 @@
 
 import Domain
 import ComposableArchitecture
+import UIKit
 
 public struct ProfileEditFeature: Reducer {
     
@@ -46,7 +47,11 @@ public struct ProfileEditFeature: Reducer {
         case profileImageButtonTapped
         case selectedCamera
         case changeToBasicProfileImage
-        case imagePickerSourceSelected(ImagePickerSource)
+        case imagePickerSourceSelected(ImagePickerSource?)
+        case profilePhotoChangeCancelled
+        case didSelectedPhoto(UIImage)
+        case didCancelImagePicking
+        case loadSelectePhoto(String)
         case saveButtonTapped
         case loadErrorText(String)
         
@@ -72,10 +77,29 @@ public struct ProfileEditFeature: Reducer {
         case .changeToBasicProfileImage:
             return .none
         case .imagePickerSourceSelected(let source):
-            state.selectedImagePickerSource = source
-            state.isShowingImagePicker = true
+            if let source = source {
+                state.selectedImagePickerSource = source
+                state.isShowingActionSheet = false
+                state.isShowingImagePicker = true
+            } else {
+                state.isShowingActionSheet = false
+                state.profileImage = ""
+            }
+            return .none
+        case .profilePhotoChangeCancelled:
+            state.isShowingActionSheet = false
+            return .none
+        case .didSelectedPhoto(let image):
+            state.isShowingImagePicker = false
+            return self.didSelectedPhoto(image: image)
+        case .didCancelImagePicking:
+            state.isShowingImagePicker = false
+            return .none
+        case .loadSelectePhoto(let imageData):
+            state.profileImage = imageData
             return .none
         case .saveButtonTapped:
+            //TODO: 수정된 프로필정보 서버전송
             return .none
         case .loadErrorText(let error):
             state.errorText = error
@@ -119,5 +143,14 @@ extension ProfileEditFeature {
             }
         }
         .cancellable(id: CancellableID.profile, cancelInFlight: true)
+    }
+    
+    func didSelectedPhoto(image: UIImage) -> Effect<Action> {
+        return .run { send in
+            if let imageData = image.jpegData(compressionQuality: 0.8) {
+                let base64String = imageData.base64EncodedString()
+                await send(.loadSelectePhoto(base64String))
+            }
+        }
     }
 }
