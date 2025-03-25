@@ -16,16 +16,14 @@ public struct HelloView: View {
     
     private let store: StoreOf<HelloFeature>
     
-    public init(repository: HelloRepository) {
-        self.store = Store(initialState: HelloFeature.State()) {
-            HelloFeature(helloRepository: repository)
-        }
+    public init(factory: StoreFactory) {
+        
+        self.store = factory.makeHelloFeatureStore()
     }
     
     public var body: some View {
-        WithPerceptionTracking {
-            VStack(spacing: 20) {
-                Text("""
+        VStack(spacing: 20) {
+            Text("""
                 hello
                 \(self.store.helloText)
                 ----
@@ -35,32 +33,30 @@ public struct HelloView: View {
                 helloUser
                 \(self.store.helloUser?.description ?? "")
                 """)
+            
+            VStack(spacing: 10) {
+                ItemView(
+                    text: "hello",
+                    request: { self.store.send(.requestHello) }
+                )
                 
-                VStack(spacing: 10) {
-                    ItemView(
-                        text: "hello",
-                        request: { self.store.send(.requestHello) }
-                    )
-                    
-                    ItemView(
-                        text: "helloID",
-                        request: { self.store.send(.requestHelloID) }
-                    )
-                    
-                    ItemView(
-                        text: "helloUser",
-                        request: { self.store.send(.requestHelloUser) }
-                    )
-                }
-                .frame(width: 250)
+                ItemView(
+                    text: "helloID",
+                    request: { self.store.send(.requestHelloID) }
+                )
+                
+                ItemView(
+                    text: "helloUser",
+                    request: { self.store.send(.requestHelloUser) }
+                )
             }
-            .padding()
-            .onAppear {
-                self.store.send(.viewWillAppear)
-            }
+            .frame(width: 250)
+        }
+        .padding()
+        .onAppear {
+            self.store.send(.viewWillAppear)
         }
     }
-    
 }
 
 extension HelloView {

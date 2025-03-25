@@ -15,8 +15,8 @@ public struct WineStoreMapView: View {
     
     let store: StoreOf<WineStoreMapFeature>
     
-    public init(store: StoreOf<WineStoreMapFeature>) {
-        self.store = store
+    public init(factory: StoreFactory) {
+        self.store = factory.makeWineStoreMapFeatureStore()
     }
     
     public var body: some View {
