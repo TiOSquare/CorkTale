@@ -9,17 +9,23 @@ import Foundation
 import Combine
 import ComposableArchitecture
 import Domain
+import Shared
 
-public struct ProfileFeature: Reducer {
+public class ProfileFeature: Reducer {
     
     private enum CancellableID {
         static let profile = "profile"
     }
     
+    private let logger = Log.make(with: .presentation)
     private let profileUseCase: ProfileUseCase
     
     public init(useCase: ProfileUseCase) {
         self.profileUseCase = useCase
+    }
+    
+    deinit {
+        logger.log("deinit \(Self.self)")
     }
     
     @ObservableState

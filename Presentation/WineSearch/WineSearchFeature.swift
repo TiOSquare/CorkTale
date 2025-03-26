@@ -21,6 +21,10 @@ public class WineSearchFeature: Reducer {
         self.usecase = usecase
     }
     
+    deinit {
+        logger.log("deinit \(Self.self)")
+    }
+    
     @ObservableState
     public struct State: Equatable {
         var searchText: String = ""

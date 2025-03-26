@@ -11,6 +11,7 @@ import Foundation
 import ComposableArchitecture
 
 import Domain
+import Shared
 
 public final class HelloFeature: Reducer {
  
@@ -20,10 +21,15 @@ public final class HelloFeature: Reducer {
         static let helloUser = "HelloUserID"
     }
     
+    private let logger = Log.make(with: .presentation)
     private let helloRepository: HelloRepository
     
     public init(helloRepository: HelloRepository) {
         self.helloRepository = helloRepository
+    }
+    
+    deinit {
+        logger.log("deinit \(Self.self)")
     }
     
     @ObservableState

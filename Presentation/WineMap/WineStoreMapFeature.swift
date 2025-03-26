@@ -23,6 +23,10 @@ public class WineStoreMapFeature: Reducer {
         self.useCase = useCase
     }
     
+    deinit {
+        logger.log("deinit \(Self.self)")
+    }
+    
     @ObservableState
     public struct State: Equatable {
         var currentLatitude: Double = 0.0
