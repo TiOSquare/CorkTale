@@ -12,6 +12,10 @@ public struct ProfileView: View {
     
     let store: StoreOf<ProfileFeature>
     
+    public init(factory: StoreFactory) {
+        self.store = factory.makeProfileFeatureStore()
+    }
+    
     public var body: some View {
         NavigationView {
             VStack {
