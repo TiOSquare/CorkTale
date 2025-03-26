@@ -14,6 +14,26 @@ import Shared
 
 final class StoreFactoryImpl: StoreFactory {
     
+    func makeMainFeatureStore() -> StoreOf<MainFeature> {
+        return .init(
+            initialState: MainFeature.State(),
+            reducer: {
+                MainFeature()
+            })
+    }
+    
+    func makeProfileFeatureStore() -> StoreOf<ProfileFeature> {
+        
+        let repository = ProfileRepositoryImpl()
+        let usecase = ProfileUseCaseImpl(repository: repository)
+        
+        return .init(
+            initialState: ProfileFeature.State(),
+            reducer: {
+                ProfileFeature(useCase: usecase)
+            })
+    }
+    
     func makeWineSearchFeatureStore() -> StoreOf<WineSearchFeature> {
         
         let visionManager = VisionManager()
@@ -25,8 +45,7 @@ final class StoreFactoryImpl: StoreFactory {
             initialState: WineSearchFeature.State(),
             reducer: {
                 WineSearchFeature(cameraFeature: cameraFeature, usecase: wineUsecase)
-            }
-        )
+            })
     }
     
     func makeWineStoreMapFeatureStore() -> StoreOf<WineStoreMapFeature> {
@@ -36,8 +55,7 @@ final class StoreFactoryImpl: StoreFactory {
             initialState: WineStoreMapFeature.State(),
             reducer: {
                 WineStoreMapFeature(useCase: locationUsecase)
-            }
-        )
+            })
     }
     
     func makeHelloFeatureStore() -> StoreOf<HelloFeature> {
@@ -47,8 +65,7 @@ final class StoreFactoryImpl: StoreFactory {
             initialState: HelloFeature.State(),
             reducer: {
                 HelloFeature(helloRepository: helloRepository)
-            }
-        )
+            })
     }
     
 }
