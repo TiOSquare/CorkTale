@@ -9,6 +9,7 @@
 import Domain
 import ComposableArchitecture
 import UIKit
+import Photos
 
 public struct ProfileEditFeature: Reducer {
     
@@ -33,6 +34,8 @@ public struct ProfileEditFeature: Reducer {
         var editProfile: ProfileEdit?
         var nickname: String = ""
         var profileImage: String = ""
+        var photoPermissionDenied: Bool = false
+        var isShowingGuideToEnableLibraryAccess: Bool = false
         var isShowingActionSheet: Bool = false
         var isShowingImagePicker: Bool = false
         var selectedImagePickerSource: ImagePickerSource?
@@ -44,8 +47,9 @@ public struct ProfileEditFeature: Reducer {
     public enum Action: Equatable, BindableAction {
         case viewWillAppear
         case loadProfile(Profile)
-        case profileImageButtonTapped
-        case selectedCamera
+        case profileImageButtonTapped(Bool)
+        case photoPermissionResult(PHAuthorizationStatus)
+        case guideToEnableLibraryAccessConfirm
         case changeToBasicProfileImage
         case imagePickerSourceSelected(ImagePickerSource?)
         case profilePhotoChangeCancelled
@@ -61,28 +65,41 @@ public struct ProfileEditFeature: Reducer {
     public func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .viewWillAppear:
-            //TODO: 프로필정보(닉네임, 프로필이미지) 요청
             state.isShowingActionSheet = false
             state.isShowingImagePicker = false
             return self.reqProfileLoad(useCase: self.profileUseCase)
         case .loadProfile(let user):
             state.profile = user
             return .none
-        case .profileImageButtonTapped:
-            state.isShowingActionSheet = true
+        case .profileImageButtonTapped(let permission):
+            if permission {
+                state.isShowingGuideToEnableLibraryAccess = true
+                return .none
+            } else {
+                return self.requestPhotoPermission()
+            }
+        case .photoPermissionResult(let status):
+            switch status {
+                case .authorized, .limited:
+                    state.isShowingActionSheet = true
+                    state.photoPermissionDenied = false
+                case .denied, .restricted:
+                    state.photoPermissionDenied = true
+                default:
+                    break
+                }
             return .none
-        case .selectedCamera:
-            state.isShowingImagePicker = true
+        case .guideToEnableLibraryAccessConfirm:
+            state.isShowingGuideToEnableLibraryAccess = false
             return .none
         case .changeToBasicProfileImage:
             return .none
         case .imagePickerSourceSelected(let source):
+            state.isShowingActionSheet = false
             if let source = source {
                 state.selectedImagePickerSource = source
-                state.isShowingActionSheet = false
                 state.isShowingImagePicker = true
             } else {
-                state.isShowingActionSheet = false
                 state.profileImage = ""
             }
             return .none
@@ -107,6 +124,8 @@ public struct ProfileEditFeature: Reducer {
             
         case .binding(\.nickname):
             return .none
+        case .binding(\.isShowingGuideToEnableLibraryAccess):
+            return .none
         case .binding(\.isShowingImagePicker):
             return .none
         case .binding(\.isShowingActionSheet):
@@ -130,6 +149,18 @@ extension ProfileEditFeature {
             }
         }
         .cancellable(id: CancellableID.profile, cancelInFlight: true)
+    }
+    
+    private func requestPhotoPermission() -> Effect<Action> {
+        .run { send in
+            let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+            if status == .notDetermined {
+                let newStatus = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
+                await send(.photoPermissionResult(newStatus))
+            } else {
+                await send(.photoPermissionResult(status))
+            }
+        }
     }
     
     func reqProfilePatch(state: State, useCase: ProfileUseCase) -> Effect<Action> {

@@ -15,7 +15,7 @@ struct ProfileEditView: View {
     var body: some View {
         VStack(spacing: 20) {
             Button(action: {
-                store.send(.profileImageButtonTapped)
+                store.send(.profileImageButtonTapped(store.photoPermissionDenied))
             }) {
                 if let data = Data(base64Encoded: store.profileImage),
                    let uiImage = UIImage(data: data) {
@@ -60,6 +60,13 @@ struct ProfileEditView: View {
                         }
                     )
                 }
+            }
+            .alert("접근권한", isPresented: $store.isShowingGuideToEnableLibraryAccess) {
+                Button("확인", role: .cancel) {
+                    store.send(.guideToEnableLibraryAccessConfirm)
+                }
+            } message: {
+                Text("사진 라이브러리 및 카메라 사용을 위해 설정>앱>카메라/사진 접근권한을 허용해주세요")
             }
             HStack {
                 Text("Nickname")
