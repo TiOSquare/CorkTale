@@ -10,6 +10,12 @@ import Domain
 import ComposableArchitecture
 import UIKit
 import Photos
+import AVFoundation
+
+enum PhotoPickerPermissionStatus {
+    case authorized
+    case denied
+}
 
 public struct ProfileEditFeature: Reducer {
     
@@ -48,7 +54,7 @@ public struct ProfileEditFeature: Reducer {
         case viewWillAppear
         case loadProfile(Profile)
         case profileImageButtonTapped(Bool)
-        case photoPermissionResult(PHAuthorizationStatus)
+        case photoPermissionResult(album: PHAuthorizationStatus, camera: AVAuthorizationStatus)
         case guideToEnableLibraryAccessConfirm
         case changeToBasicProfileImage
         case imagePickerSourceSelected(ImagePickerSource?)
@@ -78,16 +84,14 @@ public struct ProfileEditFeature: Reducer {
             } else {
                 return self.requestPhotoPermission()
             }
-        case .photoPermissionResult(let status):
-            switch status {
-                case .authorized, .limited:
-                    state.isShowingActionSheet = true
-                    state.photoPermissionDenied = false
-                case .denied, .restricted:
-                    state.photoPermissionDenied = true
-                default:
-                    break
-                }
+        case .photoPermissionResult(let albumStatus, let cameraStatus):
+            if (albumStatus == .authorized || albumStatus == .limited),
+               cameraStatus == .authorized {
+                state.isShowingActionSheet = true
+                state.photoPermissionDenied = false
+            } else {
+                state.photoPermissionDenied = true
+            }
             return .none
         case .guideToEnableLibraryAccessConfirm:
             state.isShowingGuideToEnableLibraryAccess = false
@@ -153,13 +157,19 @@ extension ProfileEditFeature {
     
     private func requestPhotoPermission() -> Effect<Action> {
         .run { send in
-            let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
-            if status == .notDetermined {
-                let newStatus = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
-                await send(.photoPermissionResult(newStatus))
-            } else {
-                await send(.photoPermissionResult(status))
+            var albumStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+            var cameraStatus = AVCaptureDevice.authorizationStatus(for: .video)
+            
+            if albumStatus == .notDetermined {
+                albumStatus = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
             }
+            
+            if cameraStatus == .notDetermined {
+                let granted = await AVCaptureDevice.requestAccess(for: .video)
+                cameraStatus = granted ? .authorized : .denied
+            }
+            
+            await send(.photoPermissionResult(album: albumStatus, camera: cameraStatus))
         }
     }
     
