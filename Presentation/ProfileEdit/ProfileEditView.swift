@@ -17,8 +17,8 @@ struct ProfileEditView: View {
             Button(action: {
                 store.send(.profileImageButtonTapped(store.photoPermissionDenied))
             }) {
-                if let data = Data(base64Encoded: store.profileImage),
-                   let uiImage = UIImage(data: data) {
+                if let imageData = store.profileImageData,
+                   let uiImage = UIImage(data: imageData) {
                     Image(uiImage: uiImage)
                         .resizable()
                         .frame(width: 100, height: 100)

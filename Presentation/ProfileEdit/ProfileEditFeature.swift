@@ -39,7 +39,8 @@ public struct ProfileEditFeature: Reducer {
         var profile: Profile?
         var editProfile: ProfileEdit?
         var nickname: String = ""
-        var profileImage: String = ""
+        var profileImageString: String = ""
+        var profileImageData: Data?
         var photoPermissionDenied: Bool = false
         var isShowingGuideToEnableLibraryAccess: Bool = false
         var isShowingActionSheet: Bool = false
@@ -61,7 +62,7 @@ public struct ProfileEditFeature: Reducer {
         case profilePhotoChangeCancelled
         case didSelectedPhoto(UIImage)
         case didCancelImagePicking
-        case loadSelectePhoto(String)
+        case loadSelectPhoto(String, Data)
         case saveButtonTapped
         case loadErrorText(String)
         
@@ -104,7 +105,7 @@ public struct ProfileEditFeature: Reducer {
                 state.selectedImagePickerSource = source
                 state.isShowingImagePicker = true
             } else {
-                state.profileImage = ""
+                state.profileImageString = ""
             }
             return .none
         case .profilePhotoChangeCancelled:
@@ -116,8 +117,9 @@ public struct ProfileEditFeature: Reducer {
         case .didCancelImagePicking:
             state.isShowingImagePicker = false
             return .none
-        case .loadSelectePhoto(let imageData):
-            state.profileImage = imageData
+        case .loadSelectPhoto(let imageString, let imageData):
+            state.profileImageString = imageString
+            state.profileImageData = imageData
             return .none
         case .saveButtonTapped:
             //TODO: 수정된 프로필정보 서버전송
@@ -176,7 +178,7 @@ extension ProfileEditFeature {
     func reqProfilePatch(state: State, useCase: ProfileUseCase) -> Effect<Action> {
         return .run { send in
             do {
-                let profileState = ProfileEdit(nickname: state.nickname, profileImage: state.profileImage)
+                let profileState = ProfileEdit(nickname: state.nickname, profileImage: state.profileImageString)
                 let profile = try await useCase.updateProfile(profile: profileState)
                 await send(.loadProfile(profile))
             } catch {
@@ -190,7 +192,7 @@ extension ProfileEditFeature {
         return .run { send in
             if let imageData = image.jpegData(compressionQuality: 0.8) {
                 let base64String = imageData.base64EncodedString()
-                await send(.loadSelectePhoto(base64String))
+                await send(.loadSelectPhoto(base64String, imageData))
             }
         }
     }
