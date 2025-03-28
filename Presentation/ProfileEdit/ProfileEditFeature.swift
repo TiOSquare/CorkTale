@@ -122,8 +122,7 @@ public struct ProfileEditFeature: Reducer {
             state.profileImageData = imageData
             return .none
         case .saveButtonTapped:
-            //TODO: 수정된 프로필정보 서버전송
-            return .none
+            return self.reqProfilePatch(state: state, useCase: self.profileUseCase)
         case .loadErrorText(let error):
             state.errorText = error
             return .none
