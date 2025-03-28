@@ -103,7 +103,7 @@ public class ProfileEditFeature: Reducer {
                     state.selectedImagePickerSource = source
                     state.isShowingImagePicker = true
                 } else {
-                    state.profileImageString = ""
+                    state.profileImageData = nil
                 }
                 return .none
             case .profilePhotoChangeCancelled:
