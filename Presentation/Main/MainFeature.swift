@@ -18,26 +18,26 @@ public struct MainFeature: Reducer {
     }
     
     @CasePathable
-    public enum Action: Equatable, BindableAction {
-        case binding(BindingAction<State>)
+    public enum Action: Equatable {
+        case tabItemDidChanged(TabItem)
     }
     
     public var body: some ReducerOf<MainFeature> {
-        BindingReducer()
         Reduce { state, action in
             switch action {
                 
-            case .binding(\.selectedTab):
+            case .tabItemDidChanged(let newTabItem):
+                if state.selectedTab != newTabItem {
+                    state.selectedTab = newTabItem
+                }
                 return .none
                 
-            default:
-                return .none
             }
         }
     }
 }
 
-enum TabItem: Hashable, CaseIterable {
+public enum TabItem: Hashable, CaseIterable {
     case home, location, search, profile, music
     
     var image: String {

@@ -10,8 +10,9 @@ import ComposableArchitecture
 import Domain
 
 public struct MainView: View {
+    
     private let factory: StoreFactory
-    @Bindable var store: StoreOf<MainFeature>
+    private let store: StoreOf<MainFeature>
     
     public init(factory: StoreFactory) {
         self.factory = factory
@@ -19,22 +20,50 @@ public struct MainView: View {
     }
     
     public var body: some View {
-        
-        TabView(selection: $store.selectedTab) {
-            
-            ForEach(TabItem.allCases, id: \.self) { item in
-                TabItemView(item)
-                    .tag(item)
-                    .tabItem {
-                        Image(systemName: item.image)
-                        Text(item.text)
-                    }
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                Group {
+                    CurrentMainView(for: store.selectedTab)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .animation(.easeInOut, value: store.selectedTab)
+                
+                MainTabBar(with: geometry.size)
             }
         }
     }
     
     @ViewBuilder
-    func TabItemView(_ tab: TabItem) -> some View {
+    private func MainTabBar(with size: CGSize) -> some View {
+        
+        let width = size.width
+        let height = width / 6
+        
+        HStack {
+            ForEach(TabItem.allCases, id: \.self) { item in
+                
+                Button {
+                    store.send(.tabItemDidChanged(item))
+                } label: {
+                    VStack(alignment: .center, spacing: 8) {
+                        Image(systemName: item.image)
+                        Text(item.text)
+                            .lineLimit(1)
+                            .font(.caption2)
+                    }
+                    .foregroundStyle(store.selectedTab == item ? .pink : .gray)
+                    .padding()
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .frame(width: width, height: height)
+        .background(Color(.systemBackground))
+        
+    }
+    
+    @ViewBuilder
+    private func CurrentMainView(for tab: TabItem) -> some View {
         
         switch tab {
         case .home:
