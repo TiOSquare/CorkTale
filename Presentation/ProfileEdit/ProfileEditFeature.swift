@@ -12,9 +12,8 @@ import UIKit
 import Photos
 import AVFoundation
 
+public class ProfileEditFeature: Reducer {
 
-public struct ProfileEditFeature: Reducer {
-    
     private enum CancellableID {
         static let profile = "profile"
     }
@@ -65,75 +64,79 @@ public struct ProfileEditFeature: Reducer {
         case binding(BindingAction<State>)
     }
     
-    public func reduce(into state: inout State, action: Action) -> Effect<Action> {
-        switch action {
-        case .viewWillAppear:
-            state.isShowingActionSheet = false
-            state.isShowingImagePicker = false
-            return self.reqProfileLoad(useCase: self.profileUseCase)
-        case .loadProfile(let user):
-            state.profile = user
-            return .none
-        case .profileImageButtonTapped(let permission):
-            if permission {
-                state.isShowingGuideToEnableLibraryAccess = true
+    public var body: some ReducerOf<ProfileEditFeature> {
+        BindingReducer()
+
+        Reduce { state, action in
+            switch action {
+            case .viewWillAppear:
+                state.isShowingActionSheet = false
+                state.isShowingImagePicker = false
+                return self.reqProfileLoad(useCase: self.profileUseCase)
+            case .loadProfile(let user):
+                state.profile = user
                 return .none
-            } else {
-                return self.requestPhotoPermission()
+            case .profileImageButtonTapped(let permission):
+                if permission {
+                    state.isShowingGuideToEnableLibraryAccess = true
+                    return .none
+                } else {
+                    return self.requestPhotoPermission()
+                }
+            case .photoPermissionResult(let albumStatus, let cameraStatus):
+                if (albumStatus == .authorized || albumStatus == .limited),
+                   cameraStatus == .authorized {
+                    state.isShowingActionSheet = true
+                    state.photoPermissionDenied = false
+                } else {
+                    state.photoPermissionDenied = true
+                }
+                return .none
+            case .guideToEnableLibraryAccessConfirm:
+                state.isShowingGuideToEnableLibraryAccess = false
+                return .none
+            case .changeToBasicProfileImage:
+                return .none
+            case .imagePickerSourceSelected(let source):
+                state.isShowingActionSheet = false
+                if let source = source {
+                    state.selectedImagePickerSource = source
+                    state.isShowingImagePicker = true
+                } else {
+                    state.profileImageString = ""
+                }
+                return .none
+            case .profilePhotoChangeCancelled:
+                state.isShowingActionSheet = false
+                return .none
+            case .didSelectedPhoto(let image):
+                state.isShowingImagePicker = false
+                return self.didSelectedPhoto(image: image)
+            case .didCancelImagePicking:
+                state.isShowingImagePicker = false
+                return .none
+            case .loadSelectPhoto(let imageString, let imageData):
+                state.profileImageString = imageString
+                state.profileImageData = imageData
+                return .none
+            case .saveButtonTapped:
+                return self.reqProfilePatch(state: state, useCase: self.profileUseCase)
+            case .loadErrorText(let error):
+                state.errorText = error
+                return .none
+                
+            case .binding(\.nickname):
+                return .none
+            case .binding(\.isShowingGuideToEnableLibraryAccess):
+                return .none
+            case .binding(\.isShowingImagePicker):
+                return .none
+            case .binding(\.isShowingActionSheet):
+                return .none
+                
+            default:
+                return .none
             }
-        case .photoPermissionResult(let albumStatus, let cameraStatus):
-            if (albumStatus == .authorized || albumStatus == .limited),
-               cameraStatus == .authorized {
-                state.isShowingActionSheet = true
-                state.photoPermissionDenied = false
-            } else {
-                state.photoPermissionDenied = true
-            }
-            return .none
-        case .guideToEnableLibraryAccessConfirm:
-            state.isShowingGuideToEnableLibraryAccess = false
-            return .none
-        case .changeToBasicProfileImage:
-            return .none
-        case .imagePickerSourceSelected(let source):
-            state.isShowingActionSheet = false
-            if let source = source {
-                state.selectedImagePickerSource = source
-                state.isShowingImagePicker = true
-            } else {
-                state.profileImageString = ""
-            }
-            return .none
-        case .profilePhotoChangeCancelled:
-            state.isShowingActionSheet = false
-            return .none
-        case .didSelectedPhoto(let image):
-            state.isShowingImagePicker = false
-            return self.didSelectedPhoto(image: image)
-        case .didCancelImagePicking:
-            state.isShowingImagePicker = false
-            return .none
-        case .loadSelectPhoto(let imageString, let imageData):
-            state.profileImageString = imageString
-            state.profileImageData = imageData
-            return .none
-        case .saveButtonTapped:
-            return self.reqProfilePatch(state: state, useCase: self.profileUseCase)
-        case .loadErrorText(let error):
-            state.errorText = error
-            return .none
-            
-        case .binding(\.nickname):
-            return .none
-        case .binding(\.isShowingGuideToEnableLibraryAccess):
-            return .none
-        case .binding(\.isShowingImagePicker):
-            return .none
-        case .binding(\.isShowingActionSheet):
-            return .none
-            
-        default:
-            return .none
         }
     }
 }
