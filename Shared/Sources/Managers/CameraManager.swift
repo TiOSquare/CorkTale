@@ -36,6 +36,11 @@ public class CameraManager: NSObject {
         }
     }
     
+    deinit {
+        self.logger.log("cameraManager deinit")
+        self.stopSession()
+    }
+    
     private func checkAuthorization() async -> Bool {
         let status = AVCaptureDevice.authorizationStatus(for: .video)
         var isAuthorized = status == .authorized
@@ -87,13 +92,17 @@ public class CameraManager: NSObject {
             self.session.startRunning()
         }
     }
+    
+    private func stopSession() {
+        self.session.stopRunning()
+    }
 }
 
 extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
     public func captureOutput(_ output: AVCaptureOutput,
                        didOutput sampleBuffer: CMSampleBuffer,
                        from connection: AVCaptureConnection) {
-        connection.videoOrientation = .portrait
+        connection.videoRotationAngle = .zero
         
         guard let currentFrame = sampleBuffer.cgImage else {
             logger.log(level: .error, "Failed to get CGImage from sample buffer")
