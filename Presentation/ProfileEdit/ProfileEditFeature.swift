@@ -12,10 +12,6 @@ import UIKit
 import Photos
 import AVFoundation
 
-enum PhotoPickerPermissionStatus {
-    case authorized
-    case denied
-}
 
 public struct ProfileEditFeature: Reducer {
     
