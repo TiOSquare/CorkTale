@@ -16,9 +16,15 @@ public class WineSearchFeature: Reducer {
     private let cameraFeature: CameraFeature
     private let usecase: WineUseCase
     
+    private let requestSearchWineId = "requestSearchWine"
+    
     public init(cameraFeature: CameraFeature, usecase: WineUseCase) {
         self.cameraFeature = cameraFeature
         self.usecase = usecase
+    }
+    
+    deinit {
+        logger.log("deinit \(Self.self)")
     }
     
     @ObservableState
@@ -54,11 +60,11 @@ public class WineSearchFeature: Reducer {
                 
             case .viewDidApear:
                 self.logger.log("view did appear")
-                return .none
+                return self.initialize()
                 
             case .viewDidDisappear:
                 self.logger.log("view did disappear")
-                return .none
+                return self.deinitialize()
                 
             case .searchButtonDidTapped:
                 self.logger.log("search button did tapped")
@@ -85,6 +91,7 @@ public class WineSearchFeature: Reducer {
                 return .none
                 
             case .binding:
+                self.logger.log("binding default")
                 return .none
                
             // Child Feature Action
@@ -96,10 +103,12 @@ public class WineSearchFeature: Reducer {
                 return self.requestSearchWines(with: text)
                 
             case .cameraAction(.dismiss):
+                self.logger.log("camera feature dismiss")
                 state.isPresentedCameraSheet = false
                 return .none
                 
             case .cameraAction:
+                self.logger.log("camera feature default")
                 return .none
             }
         }
@@ -114,6 +123,17 @@ private extension WineSearchFeature {
             let result = try? await self.usecase.search(name: text)
             await send(.updateSearchResult(result ?? []))
         })
+        .cancellable(id: requestSearchWineId, cancelInFlight: true)
+    }
+    
+    func initialize() -> Effect<Action> {
+        return .none
+    }
+    
+    func deinitialize() -> Effect<Action> {
+        return .merge(
+            .cancel(id: requestSearchWineId)
+        )
     }
     
 }

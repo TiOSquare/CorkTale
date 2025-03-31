@@ -18,9 +18,17 @@ public class WineStoreMapFeature: Reducer {
     
     private var latestCameraHeading: Double = 0.0
     private var latestUserHeading: Double = 0.0
+    private let locationStreamId = "locationStream"
+    private let headingStreamId = "headingStream"
     
     public init(useCase: LocationUseCase) {
         self.useCase = useCase
+    }
+    
+    deinit {
+        logger.log("deinit \(Self.self)")
+        useCase.stopLocationStream()
+        useCase.stopHeadingStream()
     }
     
     @ObservableState
@@ -52,7 +60,7 @@ public class WineStoreMapFeature: Reducer {
                 
             case .viewDidDisappear:
                 self.logger.log("view did disappear")
-                return .none
+                return self.deinitialize()
                 
             case .viewCameraHeadingDidChange(let cameraHeading):
                 self.logger.log("view camera heading did change: \(cameraHeading)")
@@ -81,16 +89,17 @@ public class WineStoreMapFeature: Reducer {
                 for await location in stream {
                     await send(.updateCurrentCoordinate(location.coordinate.latitude, location.coordinate.longitude))
                 }
-                
-            }),
+            })
+            .cancellable(id: locationStreamId, cancelInFlight: true),
+            
             .run(operation: { send in
                 let stream = self.useCase.startHeadingStream()
                 for await userHeading in stream {
                     self.latestUserHeading = userHeading.trueHeading
                     await send(.updateCurrentHeading(userHeading.trueHeading, self.latestCameraHeading))
                 }
-            }),
-            .none
+            })
+            .cancellable(id: headingStreamId, cancelInFlight: true)
         )
     }
     
@@ -99,7 +108,10 @@ public class WineStoreMapFeature: Reducer {
         useCase.stopLocationStream()
         useCase.stopHeadingStream()
         
-        return .none
+        return .merge(
+            .cancel(id: locationStreamId),
+            .cancel(id: headingStreamId)
+        )
     }
 }
 

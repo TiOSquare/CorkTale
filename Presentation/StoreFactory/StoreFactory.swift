@@ -10,7 +10,9 @@ import ComposableArchitecture
 
 
 public protocol StoreFactory {
+    func makeMainFeatureStore() -> StoreOf<MainFeature>
     func makeWineSearchFeatureStore() -> StoreOf<WineSearchFeature>
     func makeWineStoreMapFeatureStore() -> StoreOf<WineStoreMapFeature>
     func makeHelloFeatureStore() -> StoreOf<HelloFeature>
+    func makeProfileFeatureStore() -> StoreOf<ProfileFeature>
 }

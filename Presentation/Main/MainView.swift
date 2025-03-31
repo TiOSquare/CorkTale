@@ -7,62 +7,151 @@
 
 import SwiftUI
 import ComposableArchitecture
-import Presentation
-import Data
 import Domain
 
 public struct MainView: View {
-    let store: StoreOf<MainFeature>
     
-    public init(store: StoreOf<MainFeature>) {
-        self.store = store
+    private let factory: StoreFactory
+    private let store: StoreOf<MainFeature>
+    
+    @State private var selectedTab: TabItem = .home
+    
+    public init(factory: StoreFactory) {
+        self.factory = factory
+        self.store = factory.makeMainFeatureStore()
     }
     
     public var body: some View {
-        let repository = ProfileRepositoryImpl()
-        let profileUseCase = ProfileUseCaseImpl(repository: repository)
-        
-        WithViewStore(self.store, observe: \.selectedTab) { viewStore in
-            TabView(selection: viewStore.binding(
-                get: { $0 },
-                send: MainFeature.Action.selectTab
-            )) {
-                ProfileView(store: .init(initialState: ProfileFeature.State(),
-                                         reducer: { ProfileFeature(useCase: profileUseCase) }))
-                .tag(Tab.home)
-                .tabItem {
-                    Image(systemName: "house.fill")
-                    Text("홈")
+//        body1()
+//        body2()
+//        body3()
+        body4()
+    }
+    
+    private func body1() -> some View {
+        VStack(spacing: 0) {
+            TabView(selection: $selectedTab) {
+                ForEach(TabItem.allCases, id: \.self) { item in
+                    
+                    CurrentMainView(for: item)
+                        .tabItem {
+                            Image(systemName: item.image)
+                            Text(item.text)
+                        }
+                        .tag(item)
                 }
-                ProfileView(store: .init(initialState: ProfileFeature.State(),
-                                         reducer: { ProfileFeature(useCase: profileUseCase) }))
-                .tag(Tab.location)
-                .tabItem {
-                    Image(systemName: "map.fill")
-                    Text("매장탐색")
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .animation(.easeInOut, value: selectedTab)
+            
+        }
+    }
+    
+    private func body2() -> some View {
+        VStack(spacing: 0) {
+            TabView {
+                ForEach(TabItem.allCases, id: \.self) { item in
+                    
+                    CurrentMainView(for: item)
+                        .tag(item)
+                        .tabItem {
+                            Image(systemName: item.image)
+                            Text(item.text)
+                        }
+                        .badge(3)
                 }
-                ProfileView(store: .init(initialState: ProfileFeature.State(),
-                                         reducer: { ProfileFeature(useCase: profileUseCase) }))
-                .tag(Tab.search)
-                .tabItem {
-                    Image(systemName: "camera.fill")
-                    Text("와인검색")
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .animation(.easeInOut, value: store.selectedTab)
+            
+        }
+    }
+    
+    @ViewBuilder
+    private func body3() -> some View {
+        if #available(iOS 18.0, *) {
+            VStack(spacing: 0) {
+                TabView(selection: $selectedTab) {
+                    ForEach(TabItem.allCases, id: \.self) { item in
+                        
+                        Tab(item.text, systemImage: item.image, value: item) {
+                            CurrentMainView(for: item)
+                        }
+                        
+//                        Tab(item.text, systemImage: item.image) {
+//                            CurrentMainView(for: item)
+//                        }
+                        .badge("!")
+                    }
                 }
-                ProfileView(store: .init(initialState: ProfileFeature.State(),
-                                         reducer: { ProfileFeature(useCase: profileUseCase) }))
-                .tag(Tab.profile)
-                .tabItem {
-                    Image(systemName: "person.fill")
-                    Text("마이페이지")
-                }
-                ProfileView(store: .init(initialState: ProfileFeature.State(),
-                                         reducer: { ProfileFeature(useCase: profileUseCase) }))
-                .tag(Tab.music)
-                .tabItem {
-                    Image(systemName: "music.note")
-                    Text("음악")
-                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .animation(.easeInOut, value: store.selectedTab)
             }
         }
     }
+    
+    private func body4() -> some View {
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                Group {
+                    CurrentMainView(for: store.selectedTab)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .animation(.easeInOut, value: store.selectedTab)
+                
+                MainTabBar(with: geometry.size)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func MainTabBar(with size: CGSize) -> some View {
+        
+        let width = size.width
+        let height = width / 6
+        
+        HStack {
+            ForEach(TabItem.allCases, id: \.self) { item in
+                
+                Button {
+                    store.send(.tabItemDidChanged(item))
+                } label: {
+                    VStack(alignment: .center, spacing: 8) {
+                        Image(systemName: item.image)
+                        Text(item.text)
+                            .lineLimit(1)
+                            .font(.caption2)
+                    }
+                    .foregroundStyle(store.selectedTab == item ? .pink : .gray)
+                    .padding()
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .frame(width: width, height: height)
+        .background(Color(.systemBackground))
+        
+    }
+    
+    @ViewBuilder
+    private func CurrentMainView(for tab: TabItem) -> some View {
+        
+        switch tab {
+        case .home:
+            HelloView(factory: self.factory)
+            
+        case .location:
+            WineStoreMapView(factory: self.factory)
+            
+        case .music:
+            Text("music")
+            
+        case .profile:
+            ProfileView(factory: self.factory)
+            
+        case .search:
+            WineSearchView(factory: self.factory)
+        }
+    }
 }
+

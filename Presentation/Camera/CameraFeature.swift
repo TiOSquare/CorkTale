@@ -104,6 +104,7 @@ public class CameraFeature: Reducer {
     
     private func stopPreviewStream() -> Effect<Action> {
         logger.log("stop preview stream")
+        self.cameraManager = nil
         return .cancel(id: previewStreamId)
     }
 }
