@@ -7,11 +7,6 @@
 
 import Domain
 
-enum ProfileEditDetail {
-    case nickname
-    case profileImage
-}
-
 struct ProfileEditDTO: Codable {
     let nickname: String
     let profileImage: String
@@ -23,14 +18,5 @@ extension ProfileEditDTO {
             nickname: nickname,
             profileImage: profileImage
         )
-    }
-    
-    func toDomain(type: ProfileEditDetail) -> Any {
-        switch type {
-        case .nickname:
-            return self.nickname
-        case .profileImage:
-            return self.profileImage
-        }
     }
 }
