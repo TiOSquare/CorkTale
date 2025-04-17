@@ -6,7 +6,10 @@
 //
 
 import Foundation
+import UIKit
+
 import Moya
+
 import Shared
 
 enum ProfileAPI {
@@ -66,6 +69,29 @@ extension ProfileAPI: TargetType {
         return [
             "id": "hello"
         ]
+    }
+    
+    private var multipartformHeaders: [String: String] {
+        return [
+            "Content-Type": "multipart/form-data",
+            "id": "hello"
+        ]
+    }
+    
+    private func multipartFormData(dict: [String: Any], image: UIImage, imageName: String, needsThumbnail: Bool) -> [MultipartFormData]? {
+        if let metaData = try? JSONSerialization.data(withJSONObject: dict, options: []),
+           let imageData = image.jpegData(compressionQuality: 0.8) {
+            var formData: [MultipartFormData] =
+            [MultipartFormData(provider: .data(metaData), name: "meta-data"),
+             MultipartFormData(provider: .data(imageData), name: "image")]
+            if needsThumbnail {
+                let thumbData = APIUtil.toThumbail(imageData)
+                formData.append(MultipartFormData(provider: .data(thumbData), name: "thumbnail"))
+            }
+            return formData
+        } else {
+            return nil
+        }
     }
 }
 
