@@ -6,12 +6,16 @@
 //
 
 import Foundation
+import UIKit
+
 import Moya
+
 import Shared
 
 enum ProfileAPI {
     case createProfile(ProfileDTO)
     case getAllProfile
+    case updateProfile(ProfileEditDTO)
 }
 
 extension ProfileAPI: TargetType {
@@ -26,6 +30,8 @@ extension ProfileAPI: TargetType {
             return .get
         case .createProfile:
             return .post
+        case .updateProfile:
+            return .patch
         }
     }
     
@@ -35,6 +41,8 @@ extension ProfileAPI: TargetType {
             return ""
         case .getAllProfile:
             return ""
+        case .updateProfile:
+            return "/edit"
         }
     }
     
@@ -48,6 +56,8 @@ extension ProfileAPI: TargetType {
             return .requestJSONEncodable(dto)
         case .getAllProfile:
             return .requestPlain
+        case .updateProfile(let dto):
+            return .requestJSONEncodable(dto)
         }
     }
     
@@ -59,6 +69,29 @@ extension ProfileAPI: TargetType {
         return [
             "id": "hello"
         ]
+    }
+    
+    private var multipartformHeaders: [String: String] {
+        return [
+            "Content-Type": "multipart/form-data",
+            "id": "hello"
+        ]
+    }
+    
+    private func multipartFormData(dict: [String: Any], image: UIImage, imageName: String, needsThumbnail: Bool) -> [MultipartFormData]? {
+        if let metaData = try? JSONSerialization.data(withJSONObject: dict, options: []),
+           let imageData = image.jpegData(compressionQuality: 0.8) {
+            var formData: [MultipartFormData] =
+            [MultipartFormData(provider: .data(metaData), name: "meta-data"),
+             MultipartFormData(provider: .data(imageData), name: "image")]
+            if needsThumbnail {
+                let thumbData = APIUtil.toThumbail(imageData)
+                formData.append(MultipartFormData(provider: .data(thumbData), name: "thumbnail"))
+            }
+            return formData
+        } else {
+            return nil
+        }
     }
 }
 

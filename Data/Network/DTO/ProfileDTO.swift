@@ -7,14 +7,6 @@
 
 import Domain
 
-enum ProfileDetail {
-    case nickname
-    case profileImage
-    case level
-    case nationality
-    case emblem
-}
-
 struct ProfileDTO: Codable {
     let nickname: String
     let profileImage: String
@@ -33,21 +25,4 @@ extension ProfileDTO {
             emblem: emblem
         )
     }
-    
-    func toDomain(type: ProfileDetail) -> Any {
-        switch type {
-        case .nickname:
-            return self.nickname
-        case .profileImage:
-            return self.profileImage
-        case .level:
-            return self.level
-        case .nationality:
-            return self.nationality
-        case .emblem:
-            return self.emblem
-        }
-    }
-    
-    
 }

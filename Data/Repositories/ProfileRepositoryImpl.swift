@@ -14,12 +14,12 @@ public final class ProfileRepositoryImpl: ProfileRepository {
     
     public init() { }
     
-    public func createProfile(nickName: String, profileImage: String, level: Int, nationality: String, emblem: [String]) async throws -> Profile {
-        let profileDTO = ProfileDTO(nickname: nickName,
-                                    profileImage: profileImage,
-                                    level: level,
-                                    nationality: nationality,
-                                    emblem: emblem)
+    public func createProfile(profile: Profile) async throws -> Profile {
+        let profileDTO = ProfileDTO(nickname: profile.nickname,
+                                    profileImage: profile.profileImage,
+                                    level: profile.level,
+                                    nationality: profile.nationality,
+                                    emblem: profile.emblem)
         let response: RestResponse<ProfileDTO> = try await
         self.provider.request(ProfileAPI.createProfile(profileDTO))
         
@@ -29,6 +29,14 @@ public final class ProfileRepositoryImpl: ProfileRepository {
     public func getProfile() async throws -> Profile {
         let response: RestResponse<ProfileDTO> = try await self.provider.request(ProfileAPI.getAllProfile)
         
+        return response.data!.toDomain()
+    }
+    
+    public func updateProfile(profile: ProfileEdit) async throws -> Profile {
+        let profileDTO = ProfileEditDTO(nickname: profile.nickname, profileImage: profile.profileImage)
+        
+        let response: RestResponse<ProfileDTO> = try await
+        self.provider.request(ProfileAPI.updateProfile(profileDTO))
         return response.data!.toDomain()
     }
 }
